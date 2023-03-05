@@ -28,14 +28,30 @@ import {
 	SkinnedMesh,
 	Uint16BufferAttribute,
 	Vector3,
-	Texture,
-	DoubleSide,
-	Euler,
-	Quaternion,
-	AnimationClip,
 } from 'three'
 
 import { setEntity } from '/src/main.ts'
+
+type FaceIndex = {
+    materialIndex: number
+    boneIndex: number
+    x: number
+    y: number
+    z: number
+    u: number
+    v: number
+}
+
+type WeightedVertex = {
+    pos: Vector3
+    boneIndex: number
+}
+
+type DrawCall = {
+    start: number
+    count: number
+    materialIndex: number
+}
 
 
 const SCALE = 0.00125
@@ -50,8 +66,8 @@ const VERTEX_LOW = 0b0111111111
 const readEntity = (
 	view: DataView, 
 	meshOfs: number,
-	trackOfs: number,
-	controlOfs: number,
+	_trackOfs: number,
+	_controlOfs: number,
 ) => {
 
 	const mesh = parseMesh(view, meshOfs)

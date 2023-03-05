@@ -24,7 +24,12 @@ import { readEntity } from '/src/ReadEntity.ts'
 
 // State
 
-const state = {
+type AssetState = {
+	mem: ArrayBuffer | null
+	name: string
+}
+
+const state: AssetState = {
 	mem: null,
 	name: localStorage.getItem('asset-id')
 }
@@ -52,9 +57,9 @@ const renderEntityList = () => {
 	const count = view.getUint32(0, true)
 
 	const assetList = document.getElementById('asset-list')
-	assetList.classList.add('pop')
+	assetList!.classList.add('pop')
 	const assetSelect = document.getElementById('asset-select')
-	assetSelect.innerHTML = ''
+	assetSelect!.innerHTML = ''
 
 	let ofs = 4;
 	for(let i = 0; i < count; i++) {
@@ -68,9 +73,9 @@ const renderEntityList = () => {
 		li.setAttribute('class', 'list-group-item')
 		const hexId = `0x${id.toString(16).padStart(6, '0')}`;
 		li.textContent = hexId
-		li.addEventListener('click', (evt: ClickEvent) => {
+		li.addEventListener('click', (evt: Event) => {
 			const { target } = evt
-			state.name = target.textContent
+			state.name = (target as HTMLElement).textContent
 			localStorage.setItem('asset-id', state.name)
 			renderEntityList()
 			readEntity(view, meshOfs, tracksOfs, controlOfs)
@@ -80,7 +85,7 @@ const renderEntityList = () => {
 			li.classList.add('active')
 		}
 
-		assetSelect.appendChild(li)
+		assetSelect!.appendChild(li)
 		ofs += 0x10
 	}
 

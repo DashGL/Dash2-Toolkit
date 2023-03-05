@@ -48,10 +48,10 @@ const fileSelect = document.getElementById('file-select')
 
 // Event Listeners
 
-toggleButton.addEventListener('click', ()=> {
+toggleButton!.addEventListener('click', ()=> {
 
-	stateList.classList.toggle('hide')
-	assetList.classList.toggle('hide')
+	stateList!.classList.toggle('hide')
+	assetList!.classList.toggle('hide')
 
 })
 
@@ -62,7 +62,7 @@ const preventDefaults = (e: Event) => {
 
 const eventTypes = ['dragenter', 'dragover', 'dragleave', 'drop']
 eventTypes.forEach(eventName => {
-	assetList.addEventListener(eventName, preventDefaults)
+	assetList!.addEventListener(eventName, preventDefaults)
 })
 
 const decompress = (buffer: ArrayBuffer) => {
