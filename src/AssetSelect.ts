@@ -31,7 +31,7 @@ type AssetState = {
 
 const state: AssetState = {
 	mem: null,
-	name: localStorage.getItem('asset-id')
+	name: localStorage.getItem('asset-id') || ''
 }
 
 const setMemory = (mem: ArrayBuffer) => {
@@ -50,6 +50,10 @@ const renderAssetList = () => {
 const renderEntityList = () => {
 	
 	const { name, mem } = state
+	if(!mem) {
+		return 
+	}
+
 	const ENTITY_OFFSET = 0x124800
 	const ebdData = mem.slice(ENTITY_OFFSET)
 	
@@ -75,7 +79,8 @@ const renderEntityList = () => {
 		li.textContent = hexId
 		li.addEventListener('click', (evt: Event) => {
 			const { target } = evt
-			state.name = (target as HTMLElement).textContent
+			const content = (target as HTMLElement).textContent
+			state.name = content ? content : ''
 			localStorage.setItem('asset-id', state.name)
 			renderEntityList()
 			readEntity(view, meshOfs, tracksOfs, controlOfs)
