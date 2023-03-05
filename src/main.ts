@@ -31,7 +31,8 @@ renderer.setClearColor(new THREE.Color(0), 0)
 const aspect = window.innerWidth / window.innerHeight
 const camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000)
 const scene = new THREE.Scene()
-const controls = new OrbitControls(camera, canvas);
+new OrbitControls(camera, canvas);
+
 const geometry = new THREE.BoxGeometry();
 const material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
 const cube = new THREE.Mesh(geometry, material);

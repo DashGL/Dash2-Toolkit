@@ -26,6 +26,11 @@ import { setMemory } from '/src/AssetSelect.ts'
 
 // States
 
+type SaveState = {
+	mem: ArrayBuffer
+	vram: ArrayBuffer
+}
+
 const state = {
 	'name': ''
 }
@@ -73,7 +78,7 @@ const decompress = (buffer: ArrayBuffer) => {
 	return decompressed.buffer
 }
 
-const splitState = ( buffer: ArrayBuffer ) => {
+const splitState = ( buffer: ArrayBuffer ):SaveState => {
 
 	const mem_len = 0x200000
 	const vram_len = 0x100000
@@ -126,55 +131,61 @@ const getStateName = ( buffer: ArrayBuffer ) => {
 }
 
 const handleStateDrop = async (event: DragEvent) => {
-	const { files } = event.dataTransfer	
+	const { dataTransfer } = event
+	if(!dataTransfer) {
+		return
+	}
+
+	const { files } = dataTransfer	
 	for(let i = 0; i < files.length; i++) {
 		await handleFile(files[i], false)
 	}
 }
 
 const handleAssetDrop = async (event: DragEvent) => {
-	const { files } = event.dataTransfer	
-	const { length } = files
-	const file= files
-	console.log(files)
-	console.log(files.length)
+	const { dataTransfer } = event
+	if(!dataTransfer) {
+		return
+	}
 
-	for(let i = 0; i < length; i++) {
-		console.log(files[i])
-		await handleFile(files[i], true)
+	const { files } = dataTransfer	
+	for(let i = 0; i < files.length; i++) {
+		await handleFile(files[i], false)
 	}
 }
 
-const handleFileSelect = async (event) => {
-	const { files } = event.target
-	const { length } = files
-	const file= files
-	console.log(files)
-	console.log(files.length)
+const handleFileSelect = async (event: Event) => {
+	const { files } = event!.target as HTMLInputElement
 
+	if(!files) {
+		return
+	}
+	
+	const { length } = files
 	for(let i = 0; i < length; i++) {
-		console.log(files[i])
 		await handleFile(files[i], true)
 	}
 }
 
 const handleFile = async(file: File, setActive: boolean) => {
 	const buffer = await file.arrayBuffer()
-	const saveState = decompress(buffer)
-	const { mem, vram } = splitState(saveState)
+	const decompressed = decompress(buffer)
+	const saveState = splitState(decompressed)
+	const { mem } = saveState
 	const name = getStateName(mem)
-	await store.setItem(name, { mem, vram })
+	await store.setItem(name, saveState)
 	if(setActive) {
 		await setState(name)
 	}
-	renderStateList(mem);
+	renderStateList();
 }
 
-const setState = async (name: String) => {
+const setState = async (name: string) => {
 
 	state.name = name;
 	localStorage.setItem('savestate', name)
-	const { mem, vram } = await store.getItem(name)
+	const saveState = await store.getItem(name)
+	const { mem } = saveState as SaveState
 	setMemory(mem)
 
 }
@@ -184,23 +195,23 @@ const renderStateList = async () => {
 	const keys = await store.keys()
 	keys.sort()
 	const stateSelect = document.getElementById('state-select')
-	stateSelect.innerHTML = ''
+	stateSelect!.innerHTML = ''
 
-	const handleListClick = (event) => {
+	const handleListClick = (event: Event) => {
 		const { target } = event
-		const name = target.textContent
-		setState(name)
+		const name = (target as HTMLElement).textContent
+		setState(name as string)
 		renderStateList()
 	}
 
-	keys.forEach( (key:String) => {
+	keys.forEach( (key:string) => {
 		const li = document.createElement('li')
 		li.setAttribute('class', 'list-group-item')
 		if(key === state.name) {
 			li.classList.add('active')
 		}
 		li.textContent = key
-		stateSelect.appendChild(li)
+		stateSelect!.appendChild(li)
 		li.addEventListener('click', handleListClick)
 	})
 
@@ -212,7 +223,7 @@ if(name) {
 }
 
 renderStateList()
-assetList.addEventListener('drop', handleAssetDrop)
-stateList.addEventListener('drop', handleStateDrop)
-fileSelect.addEventListener('change', handleFileSelect)
+assetList!.addEventListener('drop', handleAssetDrop)
+stateList!.addEventListener('drop', handleStateDrop)
+fileSelect!.addEventListener('change', handleFileSelect)
 
