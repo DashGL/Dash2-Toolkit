@@ -1,0 +1,179 @@
+/*
+
+    Copyright (C) 2023 DashGL - Benjamin Collins
+    This file is part of MML2 StateViewer
+
+    MML2 StateViewer is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MML2 StateViewer is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MML2 StateViewer. If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
+
+:root {
+  --state-width: 320px;
+}
+
+html {
+
+	overflow: hidden;
+	height: 100%;
+	padding: 0;
+	margin: 0;
+
+}
+
+body {
+
+	overflow: hidden;
+	height: 100%;
+	background-color: #c8c8c8;
+
+}
+
+div.initial-state p {
+
+	white-space: normal;
+
+}
+
+section.state-select {
+
+	position: absolute;
+	border-radius: 8px;
+	overflow: hidden;
+	left: 8px;
+	top: 4px;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+	width: var(--state-width);
+	z-index: 10;
+
+}
+
+section.state-select .navbar {
+	
+	margin: 0;
+	padding-top: 2px;
+	padding-bottom: 2px;
+
+}
+
+section.state-select .navbar-toggler-icon {
+	filter: brightness(0) invert(1);
+}
+
+section.state-select h1 {
+
+	padding: 0;
+	margin: 0;
+	font-weight: bold;
+	font-size: 18px;
+
+}
+
+section.state-select div.vertical-divider {
+
+	width: 6px;
+	height: 22px;
+	border-radius: 8px;
+	background-color: #0d6efd;
+	margin-left: 10px;
+	margin-right: 10px;
+
+}
+
+section.state-select .code {
+
+	font-family: monospace;
+	color: #333;
+
+}
+
+section.state-list.pop .initial-state {
+
+	display: none;
+
+}
+
+section.state-list {
+
+	position: absolute;
+	border-radius: 8px;
+	border: 1px solid #dee2e6;
+	background-color: #fff;
+	left: 8px;
+	top: 54px;
+	font-size: 18px;	
+	box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+	align-items: center;
+	white-space: nowrap;
+	max-height: calc(100vh - 80px);
+	overflow: hidden;
+	transition: opacity 200ms, transform 200ms;
+	width: var(--state-width);
+
+}
+
+section.state-list ul {
+
+	overflow-y: scroll;
+
+}
+
+section.state-list.hide {
+
+	opacity: 0;
+	pointer-events: none;
+	transform: translateY(-10px);
+
+}
+
+section.state-list div.header {
+	
+	width: 100%;
+	border-bottom: 1px solid #dee2e6;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 4px 12px;
+	
+}
+
+section.state-list div.header h2 {
+
+	padding: 0;
+	margin: 0;
+	font-weight: bold;
+	font-size: 1.0em;
+
+}
+
+section.state-list .nav-pills .nav-link {
+
+	padding-top: 4px;
+	padding-bottom: 4px;
+	padding-left: 4px;
+	padding-right: 4px;
+}
+
+section.state-list .nav-pills .nav-link:hover {
+	
+	cursor: pointer;
+	background-color: rgba(0,0,0, 0.1);
+
+}
+
+section.state-list .nav-pills .nav-link.active:hover {
+
+	background-color: #0d6efd;
+
+}
