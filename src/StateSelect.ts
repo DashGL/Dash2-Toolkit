@@ -22,7 +22,7 @@
 
 import pako from 'pako'
 import localForage from 'localforage';
-import { setMemory } from '/src/AssetSelect.ts'
+import { setMemory } from '@/AssetSelect'
 
 // States
 

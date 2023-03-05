@@ -30,7 +30,7 @@ import {
 	Vector3,
 } from 'three'
 
-import { setEntity } from '/src/main.ts'
+import { setEntity } from '@/main'
 
 type FaceIndex = {
     materialIndex: number

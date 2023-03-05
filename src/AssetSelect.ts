@@ -20,7 +20,7 @@
 
 // Import
 
-import { readEntity } from '/src/ReadEntity.ts'
+import { readEntity } from '@/ReadEntity'
 
 // State
 
