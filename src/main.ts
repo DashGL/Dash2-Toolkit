@@ -23,6 +23,13 @@
 import * as THREE from 'three'
 import { OrbitControls } from '@three-ts/orbit-controls';
 
+// Tools
+
+const screenshotTool = document.getElementById('tool-screenshot')
+const skeletonTool = document.getElementById('tool-skeleton')
+const gridTool = document.getElementById('tool-grid')
+const resetTool = document.getElementById('tool-reset')
+
 // State
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement
@@ -47,7 +54,7 @@ const resetCamera = () => {
 	camera.position.z = 55;
 	camera.position.y = 25;
 	camera.position.x = 0;
-	camera.lookAt(new THREE.Vector3(0, 25, 0));
+	camera.lookAt(new THREE.Vector3(0, 0, 0));
 
 }
 
@@ -77,6 +84,17 @@ const setEntity = (mesh: THREE.Mesh) => {
 	scene.add(mesh)
 
 }
+
+// Events
+
+resetTool!.addEventListener('click', () => {
+	resetCamera()
+})
+
+gridTool!.addEventListener('click', () => {
+	grid.visible = !grid.visible
+})
+
 
 export { setEntity }
 

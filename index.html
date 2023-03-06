@@ -12,6 +12,8 @@
 
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
 
+		<script src="https://kit.fontawesome.com/da43231f0c.js" crossorigin="anonymous"></script>
+
 	</head>
 	<body class='p-0'>
 
@@ -55,8 +57,8 @@
 			<div class='w-100 p-1 border-bottom'>
 				<nav class="nav nav-pills nav-fill justify-content-between">
 					<a class="nav-link active" href='#' aria-current="page">Entity</a>
-					<a class="nav-link">Player</a>
-					<a class="nav-link">Map</a>
+					<a class="nav-link disabled">Player</a>
+					<a class="nav-link disabled">Map</a>
 				</nav>
 			</div>
 			<div class='initial-state'>
@@ -82,6 +84,35 @@
 		<!-- End State Select -->
 
 		<!--  Start Main -->
+
+		<div class='top-nav'>
+			<li>
+				<i class="fa-sharp fa-solid fa-download"></i>
+			</li>
+			<li>
+				<i class="fa-brands fa-patreon"></i>
+			</li>
+			<li>
+				<i class="fa-brands fa-github"></i>
+			</li>
+		</div>
+		
+		<div class='right-nav'>
+			
+			<li id='tool-screenshot' data-text='Take Screenshot'>
+				<i class="fa-duotone fa-camera"></i>	
+			</li>
+			<li id='tool-skeleton' data-text='Show/Hide Skeleton'>
+				<i class="fa-duotone fa-skeleton"></i>
+			</li>
+			<li id='tool-grid' data-text='Show/Hide Grid'>
+				<i class="fa-duotone fa-grid"></i>
+			</li>
+			<li id='tool-reset' data-text='Reset Camera'>
+				<i class="fa-solid fa-camera-movie"></i>
+			</li>
+
+		</div>
 
 		<canvas id='canvas'></canvas>
 		<script type="module" src="/src/main.ts"></script>
