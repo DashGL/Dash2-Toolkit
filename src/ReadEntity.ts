@@ -28,9 +28,11 @@ import {
 	SkinnedMesh,
 	Uint16BufferAttribute,
 	Vector3,
+	Texture,
 } from 'three'
 
 import { setEntity } from '@/main'
+import { renderTexture } from '@/Frambuffer'
 
 type FaceIndex = {
     materialIndex: number
@@ -93,6 +95,8 @@ const parseMesh = (
 
 	// Get offset to the textures
 	const textureOfs = view.getUint32(meshOfs + 0x18, true)
+	const collisionOfs = view.getUint32(meshOfs + 0x1c, true);
+	const shadowOfs = view.getUint32(meshOfs + 0x20, true);
 
 	// Read Bones
 	let ofs = skeletonOfs
@@ -194,20 +198,42 @@ const parseMesh = (
 		ofs += 0x10
 	}
 
-	const mats = [
-		new MeshBasicMaterial({
+	const mats = []
+	if(textureOfs) {
+		ofs = textureOfs
+		const textureCount = ((collisionOfs || shadowOfs) - textureOfs) / 4;
+		for (let i = 0; i < textureCount; i++) {
+			const imageCoords = view.getUint16(ofs + 0x00, true);
+			const paletteCoords = view.getUint16(ofs + 0x02, true);
+			ofs += 4;
+
+			const canvas = renderTexture(imageCoords, paletteCoords);
+            const texture = new Texture(canvas);
+            texture.flipY = false;
+            texture.needsUpdate = true;
+            mats[i] = new MeshBasicMaterial({
+                map : texture
+            });
+
+		}
+
+	}
+
+	
+	if(!mats.length) {
+		mats.push(new MeshBasicMaterial({
 			color: 0xff0000,
-		}),
-		new MeshBasicMaterial({
-			color: 0xff00,
-		}),
-		new MeshBasicMaterial({
-			color: 0xff,
-		}),
-		new MeshBasicMaterial({
+		}))
+		mats.push(new MeshBasicMaterial({
+			color: 0x00ff00,
+		}))
+		mats.push(new MeshBasicMaterial({
+			color: 0x0000ff,
+		}))
+		mats.push(new MeshBasicMaterial({
 			color: 0xffff00,
-		}),
-	]
+		}))
+	}
 
 	const geometry = createBufferGeometry(faces)
 	const mesh = new SkinnedMesh(geometry, mats)

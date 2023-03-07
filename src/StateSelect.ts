@@ -23,6 +23,7 @@
 import pako from 'pako'
 import localForage from 'localforage';
 import { setMemory } from '@/AssetSelect'
+import { setFramebuffer } from '@/Frambuffer'
 
 // States
 
@@ -185,8 +186,9 @@ const setState = async (name: string) => {
 	state.name = name;
 	localStorage.setItem('savestate', name)
 	const saveState = await store.getItem(name)
-	const { mem } = saveState as SaveState
+	const { mem, vram } = saveState as SaveState
 	setMemory(mem)
+	setFramebuffer(vram)
 
 }
 
