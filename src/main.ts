@@ -32,6 +32,7 @@ const resetTool = document.getElementById('tool-reset')
 
 // State
 
+let skelHelper: THREE.SkeletonHelper | null
 const canvas = document.getElementById('canvas') as HTMLCanvasElement
 const renderer = new THREE.WebGLRenderer({ canvas })
 renderer.setClearColor(new THREE.Color(0), 0)
@@ -40,12 +41,22 @@ const camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000)
 const scene = new THREE.Scene()
 new OrbitControls(camera, canvas);
 
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-const cube = new THREE.Mesh(geometry, material);
-// scene.add(cube);
 const grid = new THREE.GridHelper(100, 10);
 scene.add(grid);
+
+const resetScene = () => {
+
+	const { children } = scene;
+	children.forEach( (child) => {
+		switch(child) {
+		case grid:
+			return;
+		}
+
+		scene.remove(child);
+	})
+
+}
 
 // Functions
 
@@ -71,24 +82,32 @@ const updateDimensions = () => {
 const animate = () => {
 
 	requestAnimationFrame(animate);
-
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
-
 	renderer.render(scene, camera)
 
 }
 
-const setEntity = (mesh: THREE.Mesh) => {
+const setEntity = (mesh: THREE.SkinnedMesh) => {
 
+	resetScene()
+
+	if(mesh.skeleton) {
+		skelHelper = new THREE.SkeletonHelper(mesh);
+		mesh.add(skelHelper);
+	}
+	
 	scene.add(mesh)
+
 
 }
 
 // Events
 
 skeletonTool!.addEventListener('click', () => {
+	if(!skelHelper) {
+		return
+	}
 
+	skelHelper.visible = !skelHelper.visible
 })
 
 screenshotTool!.addEventListener('click', () => {

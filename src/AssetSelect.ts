@@ -72,10 +72,16 @@ const renderEntityList = () => {
 		const meshOfs = view.getUint32(ofs + 0x04, true)
 		const tracksOfs = view.getUint32(ofs + 0x08, true)
 		const controlOfs = view.getUint32(ofs + 0x0c, true)
+		ofs += 0x10
 
 		const li = document.createElement('li')
 		li.setAttribute('class', 'list-group-item')
 		const hexId = `0x${id.toString(16).padStart(6, '0')}`;
+
+		if(hexId.slice(-2) !== '20') {
+			continue
+		}
+
 		li.textContent = hexId
 		li.addEventListener('click', (evt: Event) => {
 			const { target } = evt
@@ -91,7 +97,6 @@ const renderEntityList = () => {
 		}
 
 		assetSelect!.appendChild(li)
-		ofs += 0x10
 	}
 
 }
