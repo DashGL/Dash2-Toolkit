@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/png" href="/Tool-MML2SaveStateViewer/compass-white.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>MML2 StateViewer</title>
+
+		<link rel='stylesheet' type='text/css' href='/Tool-MML2SaveStateViewer/layout.css'/>
+
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+
+		<script src="https://kit.fontawesome.com/da43231f0c.js" crossorigin="anonymous"></script>
+
+		<script type="module" crossorigin src="/Tool-MML2SaveStateViewer/assets/index-c72716cc.js"></script>
+	</head>
+	<body class='p-0'>
+
+		<!-- Start State Select -->
+
+		<section class='state-select'>
+			<nav class="navbar bg-primary" data-bs-theme="dark">
+				<div class="container-fluid">
+    				<a class="navbar-brand">
+						<img src="/Tool-MML2SaveStateViewer/compass-white.png" alt="Logo" width="30" height="24" class="d-inline-block align-text-top">
+      					MML2 StateViewer
+    				</a>
+					<button id='toggle-btn' class="btn btn-outline-light btn-sm" type="button">
+						<span class="navbar-toggler-icon"></span>
+    				</button>
+				</div>
+			</nav>
+		</section>
+
+		<section id='state-list' class='state-list hide'>
+			<div class='header'>
+				<div class="form-check form-switch">
+					<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+					<label class="form-check-label" for="flexSwitchCheckDefault">Placeholders</label>
+				</div>
+
+			</div>
+			<ul id='state-select' class="list-group list-group-flush">
+				<li class='list-group-item'>Stage 0x00 Area 0x00</li>
+				<li class='list-group-item'>Stage 0x00 Area 0x00</li>
+				<li class='list-group-item'>Stage 0x00 Area 0x00</li>
+				<li class='list-group-item'>Stage 0x00 Area 0x00</li>
+				<li class='list-group-item'>Stage 0x00 Area 0x00</li>
+				<li class='list-group-item'>Stage 0x00 Area 0x00</li>
+				<li class='list-group-item'>Stage 0x00 Area 0x00</li>
+				<li class='list-group-item'>Stage 0x00 Area 0x00</li>
+			</ul>
+		</section>
+
+		<section id='asset-list' class='state-list'>
+			<div class='w-100 p-1 border-bottom'>
+				<nav class="nav nav-pills nav-fill justify-content-between">
+					<a class="nav-link active" href='#' aria-current="page">Entity</a>
+					<a class="nav-link disabled">Player</a>
+					<a class="nav-link disabled">Map</a>
+				</nav>
+			</div>
+			<div class='initial-state'>
+				
+				<h3 class='p-2'>Get Started</h3>
+
+				<p class='p-2'>
+					Looks like you dont have any save states.
+					Drag and drop save state files from
+					PCSXR or Dusk Station to start exploring them.
+				</p>
+				
+				<input type='file' id='file-select'/>
+			</div>
+
+			<ul class="list-group list-group-flush" id='asset-select'>
+			</ul>
+		</section>
+
+		
+		
+
+		<!-- End State Select -->
+
+		<!--  Start Main -->
+
+		<div class='top-nav'>
+			<li>
+				<i class="fa-sharp fa-solid fa-download"></i>
+			</li>
+			<li>
+				<i class="fa-brands fa-patreon"></i>
+			</li>
+			<li>
+				<i class="fa-brands fa-github"></i>
+			</li>
+		</div>
+		
+		<div class='right-nav'>
+			
+			<li id='tool-screenshot' data-text='Take Screenshot'>
+				<i class="fa-duotone fa-camera"></i>	
+			</li>
+			<li id='tool-skeleton' data-text='Show/Hide Skeleton'>
+				<i class="fa-duotone fa-skeleton"></i>
+			</li>
+			<li id='tool-grid' data-text='Show/Hide Grid'>
+				<i class="fa-duotone fa-grid"></i>
+			</li>
+			<li id='tool-reset' data-text='Reset Camera'>
+				<i class="fa-solid fa-camera-movie"></i>
+			</li>
+
+		</div>
+
+		<canvas id='canvas'></canvas>
+		
+
+		<!-- End Main -->
+
+		<!-- Scripts -->
+
+
+	</body>
+</html>
