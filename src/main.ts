@@ -87,6 +87,14 @@ const setEntity = (mesh: THREE.Mesh) => {
 
 // Events
 
+skeletonTool!.addEventListener('click', () => {
+
+})
+
+screenshotTool!.addEventListener('click', () => {
+
+})
+
 resetTool!.addEventListener('click', () => {
 	resetCamera()
 })
