@@ -20,7 +20,15 @@
 
 // Import
 
+
 import { readEntity } from '@/ReadEntity'
+import characterList from '@/characters.json'
+
+interface characterInterface {
+	[key: string]: string
+}
+
+const characters = characterList as characterInterface
 
 // State
 
@@ -82,7 +90,7 @@ const renderEntityList = () => {
 			continue
 		}
 
-		li.textContent = hexId
+		li.textContent = characters[hexId] || hexId
 		li.addEventListener('click', (evt: Event) => {
 			const { target } = evt
 			const content = (target as HTMLElement).textContent

@@ -203,6 +203,7 @@ div.top-nav li {
 	align-items: center;
 	margin-left: 10px;
 	box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+	color: #333;
 
 }
 
@@ -221,6 +222,13 @@ div.right-nav {
 	top: 64px;
 	right: 4px;
 	flex-direction: column;
+
+}
+
+div.top-nav a {
+
+	text-decoration: none;
+	color: #333;
 
 }
 

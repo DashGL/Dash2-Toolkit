@@ -98,7 +98,6 @@ const setEntity = (mesh: THREE.SkinnedMesh) => {
 	(<any>window).mesh = mesh;
 	scene.add(mesh)
 
-
 }
 
 // Events
