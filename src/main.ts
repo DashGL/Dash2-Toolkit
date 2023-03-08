@@ -95,6 +95,7 @@ const setEntity = (mesh: THREE.SkinnedMesh) => {
 		mesh.add(skelHelper);
 	}
 	
+	(<any>window).mesh = mesh;
 	scene.add(mesh)
 
 

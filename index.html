@@ -14,6 +14,8 @@
 
 		<script src="https://kit.fontawesome.com/da43231f0c.js" crossorigin="anonymous"></script>
 
+		<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+
 	</head>
 	<body class='p-0'>
 		
@@ -88,7 +90,7 @@
 		<!--  Start Main -->
 
 		<div class='top-nav'>
-			<li>
+			<li id='download'>
 				<i class="fa-sharp fa-solid fa-download"></i>
 			</li>
 			<li>
@@ -122,7 +124,48 @@
 		<!-- End Main -->
 
 		<!-- Scripts -->
+		<script type="importmap">
+		{
+    		"imports": {
+      		"three": "https://unpkg.com/three@<version>/build/three.module.js"
+    		}
+		}
+	</script>
 
+	<script type="module">
+
+		import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+		
+		document.getElementById('download').addEventListener('click', () => {
+			const exporter = new GLTFExporter();
+
+			// Parse the input and generate the glTF output
+			exporter.parse(
+				window.mesh,
+				function ( gltf ) {
+					console.log( gltf );
+					downloadObjectAsJson(gltf, 'mesh')
+				},
+				// called when there is an error in the generation
+				function ( error ) {
+					console.log( 'An error happened' );
+				}
+			);
+		})
+
+		function downloadObjectAsJson(exportObj, exportName){
+			const str = JSON.stringify(exportObj, null, 2)
+			const uri = encodeURIComponent(str);
+    		const dataStr = `data:text/json;charset=utf-8,${uri}`
+    		const a = document.createElement('a');
+			a.setAttribute("href",     dataStr);
+			a.setAttribute("download", `${exportName}.json`);
+			document.body.appendChild(a);
+			a.click();
+			a.remove();
+		}
+
+	</script>	
 
 	</body>
 </html>
