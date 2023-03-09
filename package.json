@@ -9,6 +9,7 @@
     "preview": "vite preview --host"
   },
   "devDependencies": {
+    "@types/file-saver": "^2.0.5",
     "@types/pako": "^2.0.0",
     "@types/three": "^0.149.0",
     "autoprefixer": "^10.4.13",
@@ -22,6 +23,7 @@
   },
   "dependencies": {
     "@three-ts/orbit-controls": "^1.4.7",
+    "file-saver": "^2.0.5",
     "localforage": "^1.10.0",
     "pako": "^2.1.0",
     "react": "^18.2.0",

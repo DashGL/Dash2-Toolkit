@@ -67,13 +67,14 @@ const VERTEX_LOW = 0b0111111111
 
 const readEntity = (
 	view: DataView, 
+	name: string,
 	meshOfs: number,
 	_trackOfs: number,
 	_controlOfs: number,
 ) => {
 
 	const mesh = parseMesh(view, meshOfs)
-	console.log(mesh)
+	mesh.name = name
 	setEntity( mesh )
  
 }
@@ -212,7 +213,8 @@ const parseMesh = (
             texture.flipY = false;
             texture.needsUpdate = true;
             mats[i] = new MeshBasicMaterial({
-                map : texture
+                map : texture,
+				transparent: true
             });
 
 		}

@@ -22,6 +22,7 @@
 
 import * as THREE from 'three'
 import { OrbitControls } from '@three-ts/orbit-controls';
+import { saveAs } from 'file-saver';
 
 // Tools
 
@@ -34,7 +35,10 @@ const resetTool = document.getElementById('tool-reset')
 
 let skelHelper: THREE.SkeletonHelper | null
 const canvas = document.getElementById('canvas') as HTMLCanvasElement
-const renderer = new THREE.WebGLRenderer({ canvas })
+const renderer = new THREE.WebGLRenderer({ 
+	canvas,
+	preserveDrawingBuffer: true
+})
 renderer.setClearColor(new THREE.Color(0), 0)
 const aspect = window.innerWidth / window.innerHeight
 const camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000)
@@ -110,8 +114,15 @@ skeletonTool!.addEventListener('click', () => {
 	skelHelper.visible = !skelHelper.visible
 })
 
-screenshotTool!.addEventListener('click', () => {
+screenshotTool!.addEventListener('click', async () => {
 
+	const mime = "image/png";
+	const url = renderer.domElement.toDataURL(mime);
+	const res = await fetch(url)
+	const blob = await res.blob()
+
+	const name = (<any>window).mesh ? (<any>window).mesh.name : 'screenshot';
+	saveAs(blob, `${name}.png`)
 })
 
 resetTool!.addEventListener('click', () => {

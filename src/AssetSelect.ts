@@ -85,23 +85,25 @@ const renderEntityList = () => {
 		const li = document.createElement('li')
 		li.setAttribute('class', 'list-group-item')
 		const hexId = `0x${id.toString(16).padStart(6, '0')}`;
+		const characterName = characters[hexId] || hexId
 
 		if(hexId.slice(-2) !== '20') {
 			continue
 		}
 
-		li.textContent = characters[hexId] || hexId
+		li.textContent = characterName
 		li.addEventListener('click', (evt: Event) => {
 			const { target } = evt
 			const content = (target as HTMLElement).textContent
 			state.name = content ? content : ''
 			localStorage.setItem('asset-id', state.name)
 			renderEntityList()
-			readEntity(view, meshOfs, tracksOfs, controlOfs)
+			readEntity(view, characterName, meshOfs, tracksOfs, controlOfs)
 		})
 
 		if(hexId === name) {
 			li.classList.add('active')
+			readEntity(view, characterName, meshOfs, tracksOfs, controlOfs)
 		}
 
 		assetSelect!.appendChild(li)

@@ -129,12 +129,12 @@
 
 		<!-- Scripts -->
 		<script type="importmap">
-		{
-    		"imports": {
-      		"three": "https://unpkg.com/three@<version>/build/three.module.js"
-    		}
-		}
-	</script>
+			{
+    			"imports": {
+      				"three": "https://unpkg.com/three@<version>/build/three.module.js"
+    			}
+			}
+		</script>
 
 	<script type="module">
 
@@ -147,12 +147,10 @@
 			exporter.parse(
 				window.mesh,
 				function ( gltf ) {
-					console.log( gltf );
-					downloadObjectAsJson(gltf, 'mesh')
+					downloadObjectAsJson(gltf, window.mesh.name)
 				},
-				// called when there is an error in the generation
 				function ( error ) {
-					console.log( 'An error happened' );
+					throw err;
 				}
 			);
 		})
