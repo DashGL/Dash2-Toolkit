@@ -34,7 +34,7 @@ If you want to contribute to MML2SaveStateViewer, you can do so by:
 
 - Submitting bug reports or feature requests through the [issue tracker](https://github.com/DashGL/Tool-MML2SaveStateViewer/issues).
 - Forking the repository and submitting pull requests with your own bug fixes or feature additions.
-- Tweeting me feedback or updates at (@kion_dgl)[https://twitter.com/intent/tweet?screen_name=kion_dgl&ref_src=twsrc%5Etfw]
+- Tweeting me feedback or updates at [@kion_dgl](https://twitter.com/intent/tweet?screen_name=kion_dgl&ref_src=twsrc%5Etfw)
 - Providing names for character id's
 
 ## License
