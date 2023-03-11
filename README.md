@@ -1,8 +1,12 @@
-# MML2SaveStateViewer
+# MML2 Save State Viewer
+
+![mml2-banner](https://user-images.githubusercontent.com/25621780/224491317-330eab52-6df5-4588-b006-5858f120564a.png)
 
 MML2SaveStateViewer is a tool for visualizing the state of memory in Megaman Legends 2 for the PlayStation(PSX). This tool is useful for artists and game developers who want to get a closer look at assets used in the game. 
 
 ## Features
+
+![Data the Monkey Megaman Legends 2 Save State](https://user-images.githubusercontent.com/25621780/224445362-570481ec-4e18-4040-af46-c22e35918765.jpeg)
 
 - Load MML2 save states and display the contents of memory in real-time.
 - Toggle between different memory areas to view different sections of the game's memory.
@@ -34,7 +38,7 @@ If you want to contribute to MML2SaveStateViewer, you can do so by:
 
 - Submitting bug reports or feature requests through the [issue tracker](https://github.com/DashGL/Tool-MML2SaveStateViewer/issues).
 - Forking the repository and submitting pull requests with your own bug fixes or feature additions.
-- Tweeting me feedback or updates at (@kion_dgl)[https://twitter.com/intent/tweet?screen_name=kion_dgl&ref_src=twsrc%5Etfw]
+- Tweeting me feedback or updates at [@kion_dgl](https://twitter.com/intent/tweet?screen_name=kion_dgl&ref_src=twsrc%5Etfw)
 - Providing names for character id's
 
 ## License
