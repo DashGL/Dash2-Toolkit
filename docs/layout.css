@@ -20,7 +20,7 @@
 
 
 :root {
-  --state-width: 320px;
+  --state-width: 350px;
 }
 
 html {
@@ -31,6 +31,7 @@ html {
 	margin: 0;
 
 }
+
 
 body {
 
@@ -120,6 +121,34 @@ section.state-list {
 	overflow: hidden;
 	transition: opacity 200ms, transform 200ms;
 	width: var(--state-width);
+
+}
+
+section.state-list span {
+
+	display: block;
+	text-align: center;
+
+}
+
+section.state-list span u {
+
+	color: #0d6efd;
+	cursor: pointer;
+
+}
+
+section.state-list input {
+
+	display: none;
+
+}
+
+section.state-list select {
+
+	display: block;
+	margin: 4px auto;
+	width: calc(100% - 10px);
 
 }
 

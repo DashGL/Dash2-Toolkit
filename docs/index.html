@@ -23,14 +23,14 @@
     			}
 			}
 		</script>
-		<script type="module" crossorigin src="/assets/index-c39f06f5.js"></script>
+		<script type="module" crossorigin src="/assets/index-3eec79cf.js"></script>
 	</head>
 	<body class='p-0'>
 		
 		
 
 		<!-- Start State Select -->
-
+		
 		<section class='state-select'>
 			<nav class="navbar bg-primary" data-bs-theme="dark">
 				<div class="container-fluid">
@@ -66,24 +66,26 @@
 		</section>
 
 		<section id='asset-list' class='state-list'>
+			
+			<div class='w-100 p-1 border-bottom'>
+				<span>
+					Drag and drop here or 
+					<u id='file-trigger'>select</u> 
+					a file
+				</span>
+				<input type='file' id='file-select'/>
+				<select id='state-dropdown' class="form-select">
+					<option>Currently no file</option>
+				</select>
+			</div>
+
+
 			<div class='w-100 p-1 border-bottom'>
 				<nav class="nav nav-pills nav-fill justify-content-between">
 					<a class="nav-link active" href='#' aria-current="page">Entity</a>
 					<a class="nav-link disabled">Player</a>
 					<a class="nav-link disabled">Map</a>
 				</nav>
-			</div>
-			<div class='initial-state'>
-				
-				<h3 class='p-2'>Get Started</h3>
-
-				<p class='p-2'>
-					Looks like you dont have any save states.
-					Drag and drop save state files from
-					PCSXR or Dusk Station to start exploring them.
-				</p>
-				
-				<input type='file' id='file-select'/>
 			</div>
 
 			<ul class="list-group list-group-flush" id='asset-select'>

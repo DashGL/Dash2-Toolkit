@@ -46,6 +46,8 @@ const toggleButton = document.getElementById('toggle-btn')
 const stateList = document.getElementById('state-list')
 const assetList = document.getElementById('asset-list')
 const fileSelect = document.getElementById('file-select')
+const fileTrigger = document.getElementById('file-trigger')
+const stateDropdown = document.getElementById('state-dropdown') as HTMLSelectElement
 
 // Event Listeners
 
@@ -186,9 +188,14 @@ const setState = async (name: string) => {
 	state.name = name;
 	localStorage.setItem('savestate', name)
 	const saveState = await store.getItem(name)
+	if(!saveState) {
+		return
+	}
+
 	const { mem, vram } = saveState as SaveState
 	setMemory(mem)
 	setFramebuffer(vram)
+	stateDropdown!.value = name
 
 }
 
@@ -198,6 +205,7 @@ const renderStateList = async () => {
 	keys.sort()
 	const stateSelect = document.getElementById('state-select')
 	stateSelect!.innerHTML = ''
+	stateDropdown!.innerHTML = ''
 
 	const handleListClick = (event: Event) => {
 		const { target } = event
@@ -207,15 +215,23 @@ const renderStateList = async () => {
 	}
 
 	keys.forEach( (key:string) => {
+		const opt = document.createElement('option')
+		opt.setAttribute('value', key)
+		opt.textContent = key
+		stateDropdown!.appendChild(opt)
+
 		const li = document.createElement('li')
 		li.setAttribute('class', 'list-group-item')
 		if(key === state.name) {
 			li.classList.add('active')
+			stateDropdown!.value = key
 		}
+
 		li.textContent = key
 		stateSelect!.appendChild(li)
 		li.addEventListener('click', handleListClick)
 	})
+
 
 }
 
@@ -228,4 +244,10 @@ renderStateList()
 assetList!.addEventListener('drop', handleAssetDrop)
 stateList!.addEventListener('drop', handleStateDrop)
 fileSelect!.addEventListener('change', handleFileSelect)
+stateDropdown!.addEventListener('change', () => {
+	setState(stateDropdown!.value)
+})
 
+fileTrigger!.addEventListener('click', () => {
+	fileSelect!.click()
+})
