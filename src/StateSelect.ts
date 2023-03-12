@@ -151,6 +151,8 @@ const handleAssetDrop = async (event: DragEvent) => {
 		return
 	}
 
+	console.log('do eeet')
+
 	const { files } = dataTransfer	
 	for(let i = 0; i < files.length; i++) {
 		await handleFile(files[i], false)
@@ -193,9 +195,10 @@ const setState = async (name: string) => {
 	}
 
 	const { mem, vram } = saveState as SaveState
-	setMemory(mem)
-	setFramebuffer(vram)
 	stateDropdown!.value = name
+	
+	setFramebuffer(vram)
+	setMemory(mem)
 
 }
 

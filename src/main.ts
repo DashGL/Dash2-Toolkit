@@ -75,7 +75,7 @@ const resetCamera = () => {
 
 const updateDimensions = () => {
 
-	const width = window.innerWidth
+	const width = window.innerWidth - 320
 	const height = window.innerHeight
 	renderer.setSize(width, height)
 	camera.aspect = width / height;

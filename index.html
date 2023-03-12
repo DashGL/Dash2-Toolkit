@@ -2,7 +2,8 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<link rel="icon" type="image/png" href="/compass-white.png" />
+
+		<link rel='icon' href='/whale.svg' color='#fff'>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 		<meta name="twitter:card" content="summary_large_image" />
@@ -44,19 +45,78 @@
 
 		<!-- Start State Select -->
 		
-		<section class='state-select'>
-			<nav class="navbar bg-primary" data-bs-theme="dark">
-				<div class="container-fluid">
-    				<a class="navbar-brand">
-						<img src="/compass-white.png" alt="Logo" width="30" height="24" class="d-inline-block align-text-top">
-      					MML2 StateViewer
-    				</a>
-					<button id='toggle-btn' class="btn btn-outline-light btn-sm" type="button">
-						<span class="navbar-toggler-icon"></span>
-    				</button>
+		<div class='appbar text-bg-dark p-2'>
+
+    		<h1>
+      			<i class="fa-solid fa-whale"></i> MML2 SaveState Viewer
+    		</h1>
+
+			<hr/>
+
+			<select id='state-dropdown' class="form-select">
+				<option>Currently no file</option>
+			</select>
+			
+			<div class='drop-area' id='asset-list'>
+				
+				<div class='icon'>
+					<i class="fa-solid fa-upload"></i>
 				</div>
-			</nav>
-		</section>
+
+				<span>
+					Drag and drop here or 
+					<u id='file-trigger'>select</u> 
+					a file
+				</span>
+				<input type='file' id='file-select'/>
+			</div>
+
+			<hr/>
+
+			<section class='state-list'>
+				<nav class="nav mb-2 nav-pills nav-fill justify-content-between">
+					<a class="nav-link text-white active" href='#' aria-current="page">Entity</a>
+					<a class="nav-link text-white disabled">Player</a>
+					<a class="nav-link text-white disabled">Map</a>
+				</nav>
+
+				<ul class="list-group" id='asset-select'>
+				</ul>
+			</section>
+
+			<hr/>
+
+			<section class='feedback'>
+				
+				<div class='profile'>
+				</div>
+				
+				<h2>DashGL Project</h2>
+				<h3>@kion_dgl</h3>
+
+				<div class='bottom'>
+					<a href='https://www.youtube.com/@kion_dgl' target='_blank'>
+						<div class='circle yt'>
+							<i class="fa-brands fa-youtube"></i>
+						</div>
+					</a>
+				
+					<a href="https://twitter.com/intent/tweet?screen_name=kion_dgl&ref_src=twsrc%5Etfw" class="twitter-mention-button" data-show-count="false" target='_blank'>
+						<div class='circle tw'>
+							<i class="fa-brands fa-twitter"></i>
+						</div>
+					</a>
+				
+					<a href='https://www.patreon.com/dashkion' target='_blank'>
+						<div class='circle pt'>
+							<i class="fa-brands fa-patreon"></i>
+						</div>
+					</a>
+				</div>
+
+			</section>
+
+		</div>
 
 		<section id='state-list' class='state-list hide'>
 			<div class='header'>
@@ -78,32 +138,9 @@
 			</ul>
 		</section>
 
-		<section id='asset-list' class='state-list'>
-			
-			<div class='w-100 p-1 border-bottom'>
-				<span>
-					Drag and drop here or 
-					<u id='file-trigger'>select</u> 
-					a file
-				</span>
-				<input type='file' id='file-select'/>
-				<select id='state-dropdown' class="form-select">
-					<option>Currently no file</option>
-				</select>
-			</div>
-
-
-			<div class='w-100 p-1 border-bottom'>
-				<nav class="nav nav-pills nav-fill justify-content-between">
-					<a class="nav-link active" href='#' aria-current="page">Entity</a>
-					<a class="nav-link disabled">Player</a>
-					<a class="nav-link disabled">Map</a>
-				</nav>
-			</div>
-
-			<ul class="list-group list-group-flush" id='asset-select'>
-			</ul>
-		</section>
+		<div class='version'>
+			v0.1
+		</div>
 
 		<script type="module" src="/src/StateSelect.ts"></script>
 		<script type="module" src="/src/AssetSelect.ts"></script>
@@ -113,19 +150,13 @@
 		<!--  Start Main -->
 
 		<div class='top-nav'>
-			<a href="https://twitter.com/intent/tweet?screen_name=kion_dgl&ref_src=twsrc%5Etfw" class="twitter-mention-button" data-show-count="false" target='_blank'>
-				<li>
-					<i class="fa-brands fa-twitter"></i>
-				</li>
+			<li id='toggle-btn'>
+				<i class="fa-solid fa-list-check"></i>
+			</li>
 			</a>
 			<li id='download'>
 				<i class="fa-sharp fa-solid fa-download"></i>
 			</li>
-			<a href='https://www.patreon.com/dashkion' target='_blank'>
-				<li>
-					<i class="fa-brands fa-patreon"></i>
-				</li>
-			</a>
 			<a href='https://github.com/DashGL/Tool-MML2SaveStateViewer' target='_blank'>
 				<li>
 					<i class="fa-brands fa-github"></i>
@@ -162,6 +193,10 @@
 		import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 		
 		document.getElementById('download').addEventListener('click', () => {
+			if(!window.mesh) {
+				return;
+			}
+
 			const exporter = new GLTFExporter();
 
 			// Parse the input and generate the glTF output

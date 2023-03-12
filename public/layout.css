@@ -20,7 +20,7 @@
 
 
 :root {
-  --state-width: 350px;
+  --state-width: 320px;
 }
 
 html {
@@ -33,6 +33,21 @@ html {
 }
 
 
+div.drop-area {
+
+	border: 1px dashed #fff;
+	width: calc(100% - 10px);
+	background-color: rgba(255, 255, 255, 0.05);
+	display: flex;
+	margin: auto;
+	padding: 5px 0; 
+	margin-top: 10px;
+	border-radius: 4px;
+	text-align: center;
+	flex-direction: column; 
+
+}
+
 body {
 
 	overflow: hidden;
@@ -44,6 +59,31 @@ body {
 div.initial-state p {
 
 	white-space: normal;
+
+}
+
+div.appbar {
+
+	display: absolute;
+	left: 0;
+	top: 0;
+	height: 100%;
+	z-index: 10;
+	width: var(--state-width);
+	
+}
+
+div.appbar h1 {
+
+	font-size: 22px;
+	display: block;
+	margin: 4px auto;
+
+}
+
+hr {
+
+	margin: auto;
 
 }
 
@@ -99,52 +139,45 @@ section.state-select .code {
 
 }
 
-section.state-list.pop .initial-state {
+div.appbar.pop .initial-state {
 
 	display: none;
 
 }
 
-section.state-list {
 
-	position: absolute;
-	border-radius: 8px;
-	border: 1px solid #dee2e6;
-	background-color: #fff;
-	left: 8px;
-	top: 54px;
-	font-size: 18px;	
-	box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-	align-items: center;
-	white-space: nowrap;
-	max-height: calc(100vh - 80px);
-	overflow: hidden;
-	transition: opacity 200ms, transform 200ms;
-	width: var(--state-width);
+div.appbar span {
+
+	display: block;
+	text-align: center;
+	width: 100%;
+	margin: auto;
 
 }
 
-section.state-list span {
+div.appbar div.icon {
 
 	display: block;
+	margin: auto;
+	font-size: 20px;
 	text-align: center;
 
 }
 
-section.state-list span u {
 
-	color: #0d6efd;
+div.appbar span u {
+
 	cursor: pointer;
 
 }
 
-section.state-list input {
+div.appbar input {
 
 	display: none;
 
 }
 
-section.state-list select {
+div.appbar select {
 
 	display: block;
 	margin: 4px auto;
@@ -152,13 +185,14 @@ section.state-list select {
 
 }
 
-section.state-list ul {
+div.appbar ul {
 
 	overflow-y: scroll;
+	max-height: calc(100% - 50px);
 
 }
 
-section.state-list.hide {
+div.appbar.hide {
 
 	opacity: 0;
 	pointer-events: none;
@@ -166,7 +200,7 @@ section.state-list.hide {
 
 }
 
-section.state-list div.header {
+div.appbar div.header {
 	
 	width: 100%;
 	border-bottom: 1px solid #dee2e6;
@@ -177,7 +211,7 @@ section.state-list div.header {
 	
 }
 
-section.state-list div.header h2 {
+div.appbar div.header h2 {
 
 	padding: 0;
 	margin: 0;
@@ -186,7 +220,7 @@ section.state-list div.header h2 {
 
 }
 
-section.state-list .nav-pills .nav-link {
+div.appbar .nav-pills .nav-link {
 
 	padding-top: 4px;
 	padding-bottom: 4px;
@@ -194,14 +228,14 @@ section.state-list .nav-pills .nav-link {
 	padding-right: 4px;
 }
 
-section.state-list .nav-pills .nav-link:hover {
+div.appbar .nav-pills .nav-link:hover {
 	
 	cursor: pointer;
 	background-color: rgba(0,0,0, 0.1);
 
 }
 
-section.state-list .nav-pills .nav-link.active:hover {
+div.appbar .nav-pills .nav-link.active:hover {
 
 	background-color: #0d6efd;
 
@@ -215,6 +249,7 @@ div.top-nav {
 	right: 4px;
 	min-width: 20px;
 	white-space: nowrap;
+	z-index: 10;
 
 }
 
@@ -251,7 +286,7 @@ div.right-nav {
 	top: 64px;
 	right: 4px;
 	flex-direction: column;
-
+	z-index: 10;
 }
 
 div.top-nav a {
@@ -306,5 +341,117 @@ div.right-nav li:hover {
 	cursor: pointer;
 	box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 	background-color: #efefef;
+
+}
+
+canvas {
+
+	position: absolute;
+	top: 0;
+	left: var(--state-width);
+
+}
+
+section.state-list {
+
+	height: calc(100% - 300px);
+
+}
+
+section.feedback {
+
+	height: 55px;
+	position: relative;
+
+}
+
+section.feedback div.profile {
+
+	width: 50px;
+	height: 50px;
+	border: 1px solid #9a9a9a;
+	border-radius: 100%;
+	position: absolute;
+	left: 4px;
+	top: 2px;
+	background-image: url('/profile.jpg');
+	background-position: center;
+	background-size: 100%;
+
+}
+
+section.feedback h2 {
+
+	font-size: 18px;
+	position: absolute;
+	left: 60px;
+	top: 2px;
+	padding: 0;
+	margin: 0;
+
+}
+
+section.feedback h3 {
+
+	font-size: 16px;
+	position: absolute;
+	left: 64px;
+	color: #ddd;
+	top: 30px;
+	padding: 0;
+	margin: 0;
+
+}
+
+section.feedback div.bottom {
+
+	position: absolute;
+	right: 4px;
+	bottom: 4px;
+	min-height: 10px;
+	min-width: 10px;
+	display: flex;
+	flex-direction: row;
+
+}
+
+section.feedback div.bottom div.circle {
+
+	width: 25px;
+	height: 25px;
+	color: #fff;
+	border-radius: 100%;
+	margin-left: 10px;
+	line-height: 25px;
+	font-size: 15px;
+	text-align: center;
+
+}
+
+section.feedback div.bottom div.circle.tw {
+
+	background-color: #1D9BF0;
+
+}
+
+section.feedback div.bottom div.circle.yt {
+
+	background-color: #ff0000;
+
+}
+
+section.feedback div.bottom div.circle.pt {
+
+	background-color: #fe5900;
+
+}
+
+div.version {
+
+	position: absolute;
+	left: 324px;
+	top: 4px;
+	font-size: 14px;
+	z-index: 10;
 
 }

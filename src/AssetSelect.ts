@@ -39,7 +39,7 @@ type AssetState = {
 
 const state: AssetState = {
 	mem: null,
-	name: localStorage.getItem('asset-id') || ''
+	name: ''
 }
 
 const setMemory = (mem: ArrayBuffer) => {
