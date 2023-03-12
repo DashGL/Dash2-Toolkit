@@ -40,6 +40,34 @@ const store = localForage.createInstance({
   name: "MML2-StateViewer"
 });
 
+/*
+const stages = [
+  'Stage 0x02 Area 0x01', 'Stage 0x02 Area 0x02', 'Stage 0x02 Area 0x03',
+  'Stage 0x03 Area 0x01', 'Stage 0x03 Area 0x02', 'Stage 0x03 Area 0x03',
+  'Stage 0x03 Area 0x04', 'Stage 0x03 Area 0x05', 'Stage 0x0d Area 0x01',
+  'Stage 0x0e Area 0x01', 'Stage 0x0e Area 0x02', 'Stage 0x0f Area 0x00',
+  'Stage 0x0f Area 0x01', 'Stage 0x11 Area 0x02', 'Stage 0x12 Area 0x00',
+  'Stage 0x12 Area 0x01', 'Stage 0x13 Area 0x00', 'Stage 0x13 Area 0x01',
+  'Stage 0x13 Area 0x02', 'Stage 0x14 Area 0x00', 'Stage 0x14 Area 0x01',
+  'Stage 0x17 Area 0x00', 'Stage 0x17 Area 0x01', 'Stage 0x17 Area 0x02',
+  'Stage 0x17 Area 0x03', 'Stage 0x17 Area 0x04', 'Stage 0x17 Area 0x05',
+  'Stage 0x18 Area 0x00', 'Stage 0x18 Area 0x01', 'Stage 0x18 Area 0x02',
+  'Stage 0x18 Area 0x03', 'Stage 0x19 Area 0x00', 'Stage 0x19 Area 0x01',
+  'Stage 0x19 Area 0x02', 'Stage 0x1a Area 0x01', 'Stage 0x1b Area 0x01',
+  'Stage 0x1c Area 0x01', 'Stage 0x1c Area 0x02', 'Stage 0x1d Area 0x02',
+  'Stage 0x1f Area 0x01', 'Stage 0x1f Area 0x02', 'Stage 0x25 Area 0x01',
+  'Stage 0x25 Area 0x02', 'Stage 0x25 Area 0x03', 'Stage 0x26 Area 0x01',
+  'Stage 0x27 Area 0x01', 'Stage 0x28 Area 0x01', 'Stage 0x28 Area 0x02',
+  'Stage 0x29 Area 0x01', 'Stage 0x2f Area 0x00', 'Stage 0x2f Area 0x01',
+  'Stage 0x30 Area 0x01', 'Stage 0x33 Area 0x01', 'Stage 0x35 Area 0x01',
+  'Stage 0x35 Area 0x02', 'Stage 0x39 Area 0x01', 'Stage 0x3a Area 0x01',
+  'Stage 0x3a Area 0x02', 'Stage 0x3c Area 0x00', 'Stage 0x3c Area 0x01',
+  'Stage 0x3c Area 0x02', 'Stage 0x4b Area 0x01', 'Stage 0x4b Area 0x02',
+  'Stage 0x52 Area 0x01', 'Stage 0x53 Area 0x01', 'Stage 0x53 Area 0x02',
+  'Stage 0x53 Area 0x03', 'Stage 0x5c Area 0x01'
+]
+*/
+
 // DOM Elements 
 
 const toggleButton = document.getElementById('toggle-btn')
@@ -54,7 +82,6 @@ const stateDropdown = document.getElementById('state-dropdown') as HTMLSelectEle
 toggleButton!.addEventListener('click', ()=> {
 
 	stateList!.classList.toggle('hide')
-	assetList!.classList.toggle('hide')
 
 })
 
@@ -217,22 +244,24 @@ const renderStateList = async () => {
 		renderStateList()
 	}
 
+	keys.forEach( n => {
+		const li = document.createElement('li')
+		li.setAttribute('class', 'list-group-item')
+		if(n === state.name) {
+			li.classList.add('active')
+			stateDropdown!.value = n
+		}
+
+		li.textContent = n
+		stateSelect!.appendChild(li)
+		li.addEventListener('click', handleListClick)
+	})
+
 	keys.forEach( (key:string) => {
 		const opt = document.createElement('option')
 		opt.setAttribute('value', key)
 		opt.textContent = key
 		stateDropdown!.appendChild(opt)
-
-		const li = document.createElement('li')
-		li.setAttribute('class', 'list-group-item')
-		if(key === state.name) {
-			li.classList.add('active')
-			stateDropdown!.value = key
-		}
-
-		li.textContent = key
-		stateSelect!.appendChild(li)
-		li.addEventListener('click', handleListClick)
 	})
 
 
