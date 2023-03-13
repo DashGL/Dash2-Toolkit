@@ -214,7 +214,8 @@ const parseMesh = (
             texture.needsUpdate = true;
             mats[i] = new MeshBasicMaterial({
                 map : texture,
-				transparent: true
+				transparent: true,
+				alphaTest: 0.1
             });
 
 		}

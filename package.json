@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && echo 'mml2.dashgl.com' > docs/CNAME",
     "preview": "vite preview --host"
   },
   "devDependencies": {

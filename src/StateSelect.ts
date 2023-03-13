@@ -126,16 +126,31 @@ const splitState = ( buffer: ArrayBuffer ):SaveState => {
 
 	// Duck Station
 	const view = new DataView(buffer)
-	const VRAM_MAGIC = 0x4d415256
-	const mem_ofs = 0x32766
+	
+	// const VRAM_MAGIC = 0x4d415256
+	const GPU_MAGIC = 0x2d555047
+	const BUS_MAGIC = 0x00737542
+
+	// const mem_ofs = 0x32766
 	let vram_ofs = -1
+	let mem_ofs = -1
+
 	for(let i = 0; i < buffer.byteLength - 0x100000; i++) {
 		const magic = view.getUint32(i, true)
-		if(magic !== VRAM_MAGIC) {
-			continue;
-		}	
-		vram_ofs = i + 4
-		break
+
+		if(mem_ofs === -1 && magic === BUS_MAGIC) {
+			mem_ofs = i + 0x43
+		}
+
+		if(vram_ofs === -1 && magic === GPU_MAGIC) {
+			vram_ofs = i + 8
+		}
+
+	}
+
+	if(vram_ofs === -1 || mem_ofs === -1) {
+		alert('Could not parse mem and vram, Swarry >,<;;')
+		throw new Error('Could not interpret file as Duck Station sav');
 	}
 
 	return {
