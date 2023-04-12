@@ -32,6 +32,10 @@ To use MML2SaveStateViewer, follow these steps:
 5. Use the dropdown menu to select the memory area you want to view.
 6. Use the asset selector to click on which character you would like to view.
 
+## Version
+
+![Megaman Legends 2 Save State Viewer Versions](https://user-images.githubusercontent.com/25621780/231388327-9acbe7c7-9f1a-4691-afd1-1e0c94a81078.jpeg)
+
 ## Contributing
 
 If you want to contribute to MML2SaveStateViewer, you can do so by:
