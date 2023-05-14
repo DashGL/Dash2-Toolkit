@@ -23,6 +23,7 @@
 
 import { readEntity } from '@/ReadEntity'
 import characterList from '@/characters.json'
+import ByteReader from 'bytereader'
 
 interface characterInterface {
 	[key: string]: string
@@ -65,23 +66,21 @@ const renderEntityList = () => {
 	const ENTITY_OFFSET = 0x124800
 	const ebdData = mem.slice(ENTITY_OFFSET)
 	
-	const view = new DataView(ebdData)
-	const count = view.getUint32(0, true)
+	const reader = new ByteReader(ebdData);
+	const count = reader.readUInt32();
 
 	const assetList = document.getElementById('asset-list')
 	assetList!.classList.add('pop')
 	const assetSelect = document.getElementById('asset-select')
 	assetSelect!.innerHTML = ''
 
-	let ofs = 4;
 	for(let i = 0; i < count; i++) {
 		
-		const id = view.getUint32(ofs, true)
-		const meshOfs = view.getUint32(ofs + 0x04, true)
-		const tracksOfs = view.getUint32(ofs + 0x08, true)
-		const controlOfs = view.getUint32(ofs + 0x0c, true)
-		ofs += 0x10
-
+		const id = reader.readUInt32()
+		const meshOfs = reader.readUInt32()
+		const tracksOfs = reader.readUInt32()
+		const controlOfs = reader.readUInt32()
+		
 		const li = document.createElement('li')
 		li.setAttribute('class', 'list-group-item')
 		const hexId = `0x${id.toString(16).padStart(6, '0')}`;
@@ -98,12 +97,11 @@ const renderEntityList = () => {
 			state.name = content ? content : ''
 			localStorage.setItem('asset-id', state.name)
 			renderEntityList()
-			readEntity(view, characterName, meshOfs, tracksOfs, controlOfs)
+			readEntity(reader, characterName, meshOfs, tracksOfs, controlOfs)
 		})
 
 		if(hexId === name) {
 			li.classList.add('active')
-			readEntity(view, characterName, meshOfs, tracksOfs, controlOfs)
 		}
 
 		assetSelect!.appendChild(li)
