@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@three-ts/orbit-controls": "^1.4.7",
+    "bytereader": "^0.1.0",
     "file-saver": "^2.0.5",
     "localforage": "^1.10.0",
     "pako": "^2.1.0",

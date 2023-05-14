@@ -33,6 +33,7 @@ import {
 
 import { setEntity } from '@/main'
 import { renderTexture } from '@/Frambuffer'
+import ByteReader from 'bytereader'
 
 type FaceIndex = {
     materialIndex: number
@@ -66,49 +67,52 @@ const VERTEX_LOW = 0b0111111111
 
 
 const readEntity = (
-	view: DataView, 
+	reader: ByteReader, 
 	name: string,
 	meshOfs: number,
 	_trackOfs: number,
 	_controlOfs: number,
 ) => {
 
-	const mesh = parseMesh(view, meshOfs)
+	console.log('reading mesh');
+	const mesh = parseMesh(reader, meshOfs)
 	mesh.name = name
 	setEntity( mesh )
  
 }
 
 const parseMesh = (
-	view: DataView,
+	reader: ByteReader,
 	meshOfs: number,
 ) => {
 
+	reader.seek(meshOfs)
 	// Get number of defined
-	const submeshCount = view.getUint8(meshOfs + 0x00)
+	const submeshCount = reader.readUInt8();
 
 	// Read the Level-of-Detail Mesh Offsets
-	const geometryOfs = view.getUint32(meshOfs + 0x04, true)
+	reader.seek(meshOfs + 4)
+	const geometryOfs = reader.readUInt32();
 
 	// Get the offset to the bones
-	const skeletonOfs = view.getUint32(meshOfs + 0x10, true)
-	const heirarchyOfs = view.getUint32(meshOfs + 0x14, true)
+	reader.seek(meshOfs + 0x10)
+	const skeletonOfs = reader.readUInt32();
+	const heirarchyOfs = reader.readUInt32();
 
 	// Get offset to the textures
-	const textureOfs = view.getUint32(meshOfs + 0x18, true)
-	const collisionOfs = view.getUint32(meshOfs + 0x1c, true);
-	const shadowOfs = view.getUint32(meshOfs + 0x20, true);
+	const textureOfs = reader.readUInt32();
+	const collisionOfs = reader.readUInt32();
+	const shadowOfs = reader.readUInt32();
 
 	// Read Bones
-	let ofs = skeletonOfs
 	const bones: Bone[] = []
 	const nbBones = Math.floor((heirarchyOfs - skeletonOfs) / 6)
+	reader.seek(skeletonOfs)
 	for (let i = 0; i < nbBones; i++) {
 		// Read Bone Position
-		const x = view.getInt16(ofs + 0x00, true)
-		const y = view.getInt16(ofs + 0x02, true)
-		const z = view.getInt16(ofs + 0x04, true)
-		ofs += 6
+		const x = reader.readInt16();
+		const y = reader.readInt16();
+		const z = reader.readInt16();
 
 		// Create Threejs Bone
 		const bone = new Bone()
@@ -123,14 +127,15 @@ const parseMesh = (
 	}
 
 	// Read hierarchy
-	ofs = heirarchyOfs
+	console.log('hierarchy')
 	const hierarchy = []
 	const nbSegments = (textureOfs - heirarchyOfs) / 4
+	reader.seek(heirarchyOfs)
 	for (let i = 0; i < nbSegments; i++) {
-		const polygonIndex = view.getInt8(ofs + 0x00)
-		const boneParent = view.getInt8(ofs + 0x01)
-		const boneIndex = view.getUint8(ofs + 0x02)
-		const flags = view.getUint8(ofs + 0x03)
+		const polygonIndex = reader.readInt8();
+		const boneParent = reader.readInt8();
+		const boneIndex = reader.readUInt8();
+		const flags = reader.readUInt8();
 		const hidePolygon = Boolean(flags & 0x80)
 		const shareVertices = Boolean(flags & 0x40)
 
@@ -149,7 +154,6 @@ const parseMesh = (
 			hidePolygon,
 			shareVertices,
 		})
-		ofs += 4
 	}
 
 	bones.forEach((bone) => {
@@ -158,21 +162,28 @@ const parseMesh = (
 	})
 
 	// Read Geometry
-	ofs = geometryOfs
 	const vertices: WeightedVertex[] = []
 	const faces: FaceIndex[] = []
 	for (let i = 0; i < submeshCount; i++) {
+
+		// Read triangle offset and count
+		reader.seek(geometryOfs + (i * 0x10))
+		const faceTriCount = reader.readUInt8();
+		const faceQuadCount = reader.readUInt8();
+		const vertexCount = reader.readUInt8();
+		const scaleBytes = reader.readUInt8();
+		const triFaceOfs = reader.readUInt32();
+		const quadFaceOfs = reader.readUInt32();
+		const vertexOfs = reader.readUInt32();
+
+		// Read Scale
+		const scale = scaleBytes === -1 ? 0.5 : 1 << scaleBytes
 		const { boneIndex, boneParent, shareVertices } = hierarchy[i]
 		const bone = bones[boneIndex]
-		// Read Vertex offset and count
-		const vertexOfs = view.getUint32(ofs + 0x0c, true)
-		const vertexCount = view.getUint8(ofs + 0x02)
-		// Read Scale
-		const scaleBytes = view.getInt8(ofs + 0x03)
-		const scale = scaleBytes === -1 ? 0.5 : 1 << scaleBytes
+		
 		// Read Vertices
 		const localIndices: WeightedVertex[] = readVertex(
-			view,
+			reader,
 			vertexOfs,
 			vertexCount,
 			scale,
@@ -183,30 +194,19 @@ const parseMesh = (
 			boneParent
 		)
 
-		// Read triangle offset and count
-		const faceTriCount = view.getUint8(ofs + 0x00)
-		const triFaceOfs = view.getUint32(ofs + 0x04, true)
-
 		// Read Triangles Faces
-		readFace(view, triFaceOfs, faceTriCount, false, localIndices, faces)
-
-		// Read quads offset and count
-		const faceQuadCount = view.getUint8(ofs + 0x01)
-		const quadFaceOfs = view.getUint32(ofs + 0x08, true)
-
+		readFace(reader, triFaceOfs, faceTriCount, false, localIndices, faces)
 		// Read Quad Faces
-		readFace(view, quadFaceOfs, faceQuadCount, true, localIndices, faces)
-		ofs += 0x10
+		readFace(reader, quadFaceOfs, faceQuadCount, true, localIndices, faces)
 	}
 
 	const mats = []
 	if(textureOfs) {
-		ofs = textureOfs
+		reader.seek(textureOfs)
 		const textureCount = ((collisionOfs || shadowOfs) - textureOfs) / 4;
 		for (let i = 0; i < textureCount; i++) {
-			const imageCoords = view.getUint16(ofs + 0x00, true);
-			const paletteCoords = view.getUint16(ofs + 0x02, true);
-			ofs += 4;
+			const imageCoords = reader.readUInt16();
+			const paletteCoords = reader.readUInt16();
 
 			const canvas = renderTexture(imageCoords, paletteCoords);
             const texture = new Texture(canvas);
@@ -250,7 +250,7 @@ const parseMesh = (
 }
 
 const readVertex = (
-	view: DataView,
+	reader: ByteReader,
 	vertexOffset: number,
 	vertexCount: number,
 	scale: number,
@@ -260,9 +260,9 @@ const readVertex = (
 	boneIndex: number,
 	boneParent: number
 ) => {
-	const localIndices: WeightedVertex[] = []
 
-	let ofs = vertexOffset
+	const localIndices: WeightedVertex[] = []
+	reader.seek(vertexOffset)
 	const haystack = bone.parent
 		? vertices
 			  .filter((v) => {
@@ -275,9 +275,7 @@ const readVertex = (
 		: []
 
 	for (let i = 0; i < vertexCount; i++) {
-		const dword = view.getUint32(ofs, true)
-		ofs += 4
-
+		const dword = reader.readUInt32();
 		const xBytes = (dword >> 0x00) & VERTEX_MASK
 		const yBytes = (dword >> 0x0a) & VERTEX_MASK
 		const zBytes = (dword >> 0x14) & VERTEX_MASK
@@ -377,7 +375,7 @@ const createBufferGeometry = (faces: FaceIndex[]) => {
 }
 
 const readFace = (
-	view: DataView,
+	reader: ByteReader,
 	faceOffset: number,
 	faceCount: number,
 	isQuad: boolean,
@@ -387,20 +385,22 @@ const readFace = (
 	const FACE_MASK = 0b1111111
 	const PIXEL_TO_FLOAT_RATIO = 0.00390625
 	const PIXEL_ADJUSTMEST = 0.001953125
-	let ofs = faceOffset
-	for (let i = 0; i < faceCount; i++) {
-		const dword = view.getUint32(ofs + 0x08, true)
-		const materialIndex = (dword >> 28) & 0x3
 
-		const au = view.getUint8(ofs + 0x00)
-		const av = view.getUint8(ofs + 0x01)
-		const bu = view.getUint8(ofs + 0x02)
-		const bv = view.getUint8(ofs + 0x03)
-		const cu = view.getUint8(ofs + 0x04)
-		const cv = view.getUint8(ofs + 0x05)
-		const du = view.getUint8(ofs + 0x06)
-		const dv = view.getUint8(ofs + 0x07)
-		ofs += 0x0c
+	reader.seek(faceOffset);
+	for (let i = 0; i < faceCount; i++) {
+		
+
+		const au = reader.readUInt8();
+		const av = reader.readUInt8();
+		const bu = reader.readUInt8();
+		const bv = reader.readUInt8();
+		const cu = reader.readUInt8();
+		const cv = reader.readUInt8();
+		const du = reader.readUInt8();
+		const dv = reader.readUInt8();
+		
+		const dword = reader.readUInt32();
+		const materialIndex = (dword >> 28) & 0x3
 
 		const indexA = (dword >> 0x00) & FACE_MASK
 		const indexB = (dword >> 0x07) & FACE_MASK
