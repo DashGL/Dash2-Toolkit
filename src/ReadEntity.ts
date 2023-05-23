@@ -29,6 +29,9 @@ import {
 	Uint16BufferAttribute,
 	Vector3,
 	Texture,
+	Euler,
+	Quaternion,
+	AnimationClip,
 } from 'three'
 
 
@@ -56,6 +59,29 @@ type DrawCall = {
 	materialIndex: number
 }
 
+type KeyFrameValue = {
+	rootPos: Vector3
+	boneRot: Quaternion[]
+}
+
+type AnimationKey = {
+    time: number
+    rot: number[]
+    scl: number[]
+    pos: number[]
+}
+
+type AnimationHierarchy = {
+    parent: number
+    keys: AnimationKey[]
+}
+
+type AnimationDefintion = {
+    name: string
+    fps: number
+    length: number
+    hierarchy: AnimationHierarchy[]
+}
 
 const SCALE = 0.00125
 const ROT = new Matrix4()
@@ -235,9 +261,205 @@ class Entity {
 		return mesh
 	}
 
-	parseAnimation = (tracksOfs: number, controlOfs: number) => {
+	dwordToVertex(dword:number) {
+		const VERTEX_MASK = 0x3ff;
+		const VERTEX_MSB = 0x200;
+		const VERTEX_LOW = 0x1ff;
+		const scale = dword >> 30;
 
+		const xBytes = (dword >> 0x00) & VERTEX_MASK
+		const yBytes = (dword >> 0x0a) & VERTEX_MASK
+		const zBytes = (dword >> 0x14) & VERTEX_MASK
+
+		const xHigh = (xBytes & VERTEX_MSB) * -1
+		const xLow = xBytes & VERTEX_LOW
+
+		const yHigh = (yBytes & VERTEX_MSB) * -1
+		const yLow = yBytes & VERTEX_LOW
+
+		const zHigh = (zBytes & VERTEX_MSB) * -1
+		const zLow = zBytes & VERTEX_LOW
+
+		const vec3 = new Vector3(
+			(xHigh + xLow) * scale,
+			(yHigh + yLow) * scale,
+			(zHigh + zLow) * scale
+		)
+		vec3.multiplyScalar(SCALE)
+		return vec3;
 	}
+
+	dwordToEuler(dword:number) {
+
+		const ROT_MAGNITUDE = [
+			90, 
+			180, 
+			360, 
+			720
+		];
+
+		const TEN_BIT_MASK = 0x3ff
+		const x = dword & TEN_BIT_MASK
+        const y = (dword >> 10) & TEN_BIT_MASK
+        const z = (dword >> 20) & TEN_BIT_MASK
+        const w = (dword >> 30) & 0b11
+
+		const x_pos = (x & 0x200) / 0x3ff
+		const y_pos = (y & 0x200) / 0x3ff
+		const z_pos = (z & 0x200) / 0x3ff
+
+		const x_neg = ((x & 0x1ff) / 0x3ff) * -1
+		const y_neg = ((y & 0x1ff) / 0x3ff) * -1
+		const z_neg = ((z & 0x1ff) / 0x3ff) * -1
+
+		const rotAngles = {
+			x: (x_pos + x_neg) * ROT_MAGNITUDE[w],
+			y: (y_pos + y_neg) * ROT_MAGNITUDE[w],
+			z: (z_pos + z_neg) * ROT_MAGNITUDE[w],
+		}
+
+		const e = new Euler(
+			-(rotAngles.x * Math.PI) / 180,
+			-(rotAngles.y * Math.PI) / 180,
+			(rotAngles.z * Math.PI) / 180
+		)
+
+		const q = new Quaternion()
+		q.setFromEuler(e)
+		return q;
+	}
+
+	readKeyFrameValues (keyFrameValuesOfs: number, keyFramesOfs: number) {
+
+		this.reader.seek(keyFrameValuesOfs)
+
+		// First we want to get a list of all of the key frames
+		const firstOfs = this.reader.readUInt32();
+		const keyFramePointers = [firstOfs];
+		while(this.reader.tell() < firstOfs) {
+			const pointer = this.reader.readUInt32();
+			keyFramePointers.push(pointer);
+		}
+
+		// The stride for each keyframe value is a dword for rotation for each
+		// bone and then a dword for the root bone position
+		const stride = (this.bones.length + 1) * 4;
+
+		// Create a container to store all of the values
+		const keyFrameDict: KeyFrameValue[][] = [];
+
+		// Then we want to parse all of the key frame values for each pointer
+		keyFramePointers.forEach( (pointer, index) => {
+			// Find the end offset
+			const endOfs = keyFramePointers[index + 1] || keyFramesOfs;
+
+			// Find the number of key frame values in the set
+			const byteLength = endOfs - pointer;
+			const frameValueCount = byteLength / stride;
+
+			const keyFrameValues: KeyFrameValue[] = []
+			// Seek and then start parsing the values
+			this.reader.seek(pointer)
+			for(let i = 0; i < frameValueCount; i++) {
+				const rootBonePos = this.reader.readUInt32();
+				const rootPos = this.dwordToVertex(rootBonePos);
+				const keyFrameValue: KeyFrameValue = {
+					rootPos,
+					boneRot: []
+				}
+				this.bones.forEach( () => {
+					const boneRot = this.reader.readUInt32();
+					const rot = this.dwordToEuler(boneRot);
+					keyFrameValue.boneRot.push(rot);
+				})
+				keyFrameValues.push(keyFrameValue);
+			}
+			
+			keyFrameDict.push(keyFrameValues);
+		})
+
+		return keyFrameDict;
+	}
+
+	// https://gitlab.com/dashgl/mml2/-/blob/main/src/parse/parseCharacter.tsx
+	parseAnimation = (keyFrameValuesOfs: number, keyFramesOfs: number) => {
+
+		const animations: AnimationClip[] = []
+
+		// First we want to read all of the key frame values
+		const keyFrameDict = this.readKeyFrameValues(keyFrameValuesOfs, keyFramesOfs);
+		
+		// Then we want to go through the list of animations
+		// These are defined as a list of pointers to key frames for animations
+
+		this.reader.seek(keyFramesOfs);
+		const firstOfs = this.reader.readUInt32();
+		const animPointers = [firstOfs];
+		while(this.reader.tell() < firstOfs) {
+			const pointer = this.reader.readUInt32();
+			if(!pointer) {
+				continue;
+			}
+			animPointers.push(pointer);
+		}
+
+		animPointers.forEach( (pointer, animIndex) => {
+
+			this.reader.seek(pointer);
+			// Source of the key frame values for the defined key frames
+			const source = this.reader.readUInt8();
+			const length = this.reader.readUInt8();
+			// Skip over the next two bytes (unused)
+			this.reader.seekRel(2);
+
+			// Create an animation
+			const animation: AnimationDefintion = {
+				name: `anim_${animIndex.toString().padStart(3, '0')}`,
+				fps: 30,
+				length: (length - 1) / 30,
+				hierarchy: [],
+			}
+
+			this.bones.forEach((b, boneIndex) => {
+				animation.hierarchy.push({
+					parent: boneIndex - 1,
+					keys: [],
+				})
+			})
+	
+
+			console.log("reading anim", animIndex)
+			const keyframes = keyFrameDict[source];
+			for(let i = 0; i < length; i++) {
+				const a = this.reader.readUInt8();
+				const b = this.reader.readUInt8();
+				const c = this.reader.readUInt8();
+				const d = this.reader.readUInt8();
+				const keyframe = keyframes[a];
+
+				this.bones.forEach( (bone, boneIndex) => {
+					const key: AnimationKey = {
+						time: i / 30,
+						rot: keyframe.boneRot[boneIndex].toArray(),
+						scl: [1, 1, 1],
+						pos: [bone.position.x, bone.position.y, bone.position.z],
+					}
+
+					animation.hierarchy[boneIndex].keys.push(key)
+				})
+			}
+			const clip = AnimationClip.parseAnimation(animation, this.bones)
+			if (!clip) {
+				return console.error('Invalid clip detected')
+			}
+
+			clip.optimize()
+			animations.push(clip)
+		})
+
+		return animations;
+	}
+
 
 	readVertex (
 		vertexCount: number,
@@ -443,18 +665,6 @@ class Entity {
 	
 		return geometry
 	}
-
-}
-
-const readEntity = (
-	reader: ByteReader,
-	name: string,
-	meshOfs: number,
-	_trackOfs: number,
-	_controlOfs: number,
-) => {
-
-	
 
 }
 

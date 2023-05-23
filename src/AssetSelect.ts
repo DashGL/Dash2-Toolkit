@@ -102,7 +102,8 @@ const renderEntityList = () => {
 			mesh.name = name
 
 			if(tracksOfs && controlOfs) {
-				e.parseAnimation(tracksOfs, controlOfs); 
+				const anims = e.parseAnimation(tracksOfs, controlOfs); 
+				mesh.animations = anims;
 			}
 
 			setEntity(mesh)

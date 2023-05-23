@@ -48,6 +48,18 @@ new OrbitControls(camera, canvas);
 const grid = new THREE.GridHelper(100, 10);
 scene.add(grid);
 
+type MainMemory = {
+	mesh : THREE.Mesh | null,
+	mixer: THREE.AnimationMixer | null,
+	clock: THREE.Clock
+}
+
+const mem: MainMemory = {
+	mesh: null,
+	mixer: null,
+	clock: new THREE.Clock()
+}
+
 const resetScene = () => {
 
 	const { children } = scene;
@@ -86,6 +98,10 @@ const updateDimensions = () => {
 const animate = () => {
 
 	requestAnimationFrame(animate);
+	if(mem.mixer) {
+		const delta = mem.clock.getDelta()
+        mem.mixer.update(delta)
+	}
 	renderer.render(scene, camera)
 
 }
@@ -98,8 +114,17 @@ const setEntity = (mesh: THREE.SkinnedMesh) => {
 		skelHelper = new THREE.SkeletonHelper(mesh);
 		mesh.add(skelHelper);
 	}
+
+	if(mesh.animations && mesh.animations.length) {
+		const clip = mesh.animations[0];
+		const mixer = new THREE.AnimationMixer(mesh as THREE.Object3D)
+		const action = mixer.clipAction(clip, mesh as THREE.Object3D)
+        action.play()
+        mem.mixer = mixer
+
+	}
 	
-	(<any>window).mesh = mesh;
+	mem.mesh = mesh;
 	scene.add(mesh)
 
 }

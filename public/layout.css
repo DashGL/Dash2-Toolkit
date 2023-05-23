@@ -425,24 +425,35 @@ section.feedback div.bottom div.circle {
 	line-height: 25px;
 	font-size: 15px;
 	text-align: center;
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: 70%;
+	
+}
 
+
+section.feedback div.bottom div.circle svg {
+	fill: #fff;
 }
 
 section.feedback div.bottom div.circle.tw {
 
 	background-color: #1D9BF0;
+	background-image: url('/twitter.svg');
 
 }
 
 section.feedback div.bottom div.circle.yt {
 
 	background-color: #ff0000;
+	background-image: url('/youtube.svg');
 
 }
 
 section.feedback div.bottom div.circle.pt {
 
 	background-color: #fe5900;
+	background-image: url('/patreon.svg');
 
 }
 
@@ -479,5 +490,69 @@ div.version {
 	pointer-events: none;
 	opacity: 0;
 	transform: translateY(-10px);
+
+}
+
+#download {
+
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: 60%;
+	background-image: url('/download.svg');
+
+}
+
+#github {
+
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: 60%;
+	background-image: url('/github.svg');
+
+}
+
+#toggle-btn {
+
+	display: none;
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: 60%;
+	background-image: url('/list.svg');
+
+}
+
+#tool-screenshot {
+
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: 60%;
+	background-image: url('/camera.svg');
+
+}
+
+#tool-skeleton {
+
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: 60%;
+	background-image: url('/bone.svg');
+
+}
+
+#tool-grid {
+
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: 60%;
+	background-image: url('/grid.svg');
+
+}
+
+#tool-reset {
+
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: 60%;
+	background-image: url('/reset.svg');
 
 }
