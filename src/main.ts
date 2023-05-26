@@ -31,6 +31,15 @@ const skeletonTool = document.getElementById('tool-skeleton')
 const gridTool = document.getElementById('tool-grid')
 const resetTool = document.getElementById('tool-reset')
 
+const controls = document.getElementById('anim.controls')
+const select = document.getElementById('anim.select')
+const play = document.getElementById('anim.play')
+const pause = document.getElementById('anim.pause')
+const stop = document.getElementById('anim.stop')
+const next = document.getElementById('anim.next')
+const prev = document.getElementById('anim.prev')
+const frame = document.getElementById('anim.frame')
+
 // State
 
 let skelHelper: THREE.SkeletonHelper | null
@@ -39,6 +48,7 @@ const renderer = new THREE.WebGLRenderer({
 	canvas,
 	preserveDrawingBuffer: true
 })
+
 renderer.setClearColor(new THREE.Color(0), 0)
 const aspect = window.innerWidth / window.innerHeight
 const camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000)
@@ -51,12 +61,14 @@ scene.add(grid);
 type MainMemory = {
 	mesh : THREE.Mesh | null,
 	mixer: THREE.AnimationMixer | null,
+	action: THREE.AnimationAction | null,
 	clock: THREE.Clock
 }
 
 const mem: MainMemory = {
 	mesh: null,
 	mixer: null,
+	action: null,
 	clock: new THREE.Clock()
 }
 
@@ -109,6 +121,7 @@ const animate = () => {
 const setEntity = (mesh: THREE.SkinnedMesh) => {
 
 	resetScene()
+	mem.mesh = mesh;
 
 	if(mesh.skeleton) {
 		skelHelper = new THREE.SkeletonHelper(mesh);
@@ -116,20 +129,140 @@ const setEntity = (mesh: THREE.SkinnedMesh) => {
 	}
 
 	if(mesh.animations && mesh.animations.length) {
-		const clip = mesh.animations[0];
-		const mixer = new THREE.AnimationMixer(mesh as THREE.Object3D)
-		const action = mixer.clipAction(clip, mesh as THREE.Object3D)
-        action.play()
-        mem.mixer = mixer
-
+		controls!.classList.remove('hide')
+		select!.innerHTML = '<option value="null">Select Animation</option>'
+		for(let i = 0; i < mesh.animations.length; i++){
+			const opt = document.createElement('option');
+			opt.value = i.toString();
+			opt.textContent = `anim_${i.toString().padStart(3,'0')}`
+			select!.appendChild(opt);
+		}
+	} else {
+		controls!.classList.add('hide')
 	}
 	
-	mem.mesh = mesh;
+	
 	scene.add(mesh)
 
 }
 
 // Events
+
+const startAnim = (index:number | null) => {
+	const { mesh } = mem ;
+	if(!mesh) {
+		return;
+	}
+
+	if(mem.action) {
+		mem.action.stop();
+	}
+
+	if(index === null) {
+		return;
+	}
+
+	console.log(index);
+	const clip = mesh.animations[index];
+	const mixer = new THREE.AnimationMixer(mesh as THREE.Object3D)
+	const action = mixer.clipAction(clip, mesh as THREE.Object3D)
+    action.play()
+	mem.action = action
+    mem.mixer = mixer
+}
+
+select!.addEventListener('input', ()=> {
+	
+	const value = parseInt((select as HTMLSelectElement)!.value);	
+	startAnim(value);
+
+})
+
+play!.addEventListener('click', () =>{
+	const { action } = mem;
+	if(!action) {
+		return;
+	}
+	action.play();
+	action.paused = false;
+});
+
+pause!.addEventListener('click', () =>{
+	const { action } = mem;
+	if(!action) {
+		return;
+	}
+	action.paused = true;
+})
+
+stop!.addEventListener('click', () =>{
+	const { action } = mem;
+	if(!action) {
+		return;
+	}
+	action.stop();
+})
+
+next!.addEventListener('click', () =>{
+	const { mesh } = mem ;
+	if(!mesh) {
+		return;
+	}
+
+	const len = mesh.animations.length;
+	if(len === 0){
+		return;
+	}
+
+	const e = select as HTMLSelectElement
+	const value = parseInt(e!.value);
+	
+	if(value === len - 1){
+		return;
+	}
+
+	if(value === null) {
+		e!.value = '0';	
+		startAnim(0);
+	}
+
+	e!.value = (value + 1).toString(); 
+	startAnim(value + 1);
+})
+
+prev!.addEventListener('click', () =>{
+
+	const { mesh } = mem ;
+	if(!mesh) {
+		return;
+	}
+
+	const len = mesh.animations.length;
+	if(len === 0){
+		return;
+	}
+
+	const e = select as HTMLSelectElement
+	const value = parseInt(e!.value);
+	
+	if(value === null) {
+		return;
+	}
+
+	if(value === 0){
+		e!.value = 'null';	
+		startAnim(null);
+		return;
+	}
+
+	e!.value = (value - 1).toString();
+	startAnim(value - 1);
+
+});
+
+frame!.addEventListener('click', () =>{
+	console.log('select updated')
+})
 
 skeletonTool!.addEventListener('click', () => {
 	if(!skelHelper) {
@@ -140,7 +273,6 @@ skeletonTool!.addEventListener('click', () => {
 })
 
 screenshotTool!.addEventListener('click', async () => {
-
 	const mime = "image/png";
 	const url = renderer.domElement.toDataURL(mime);
 	const res = await fetch(url)
