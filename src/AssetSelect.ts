@@ -21,7 +21,8 @@
 // Import
 
 
-import { readEntity } from '@/ReadEntity'
+import { Entity } from '@/ReadEntity'
+import { setEntity } from '@/main'
 import characterList from '@/characters.json'
 import ByteReader from 'bytereader'
 
@@ -44,10 +45,8 @@ const state: AssetState = {
 }
 
 const setMemory = (mem: ArrayBuffer) => {
-
 	state.mem = mem
 	renderAssetList()
-
 }
 
 const renderAssetList = () => {
@@ -97,7 +96,17 @@ const renderEntityList = () => {
 			state.name = content ? content : ''
 			localStorage.setItem('asset-id', state.name)
 			renderEntityList()
-			readEntity(reader, characterName, meshOfs, tracksOfs, controlOfs)
+			
+			const e = new Entity(reader);
+			const mesh = e.parseMesh(meshOfs);
+			mesh.name = name
+
+			if(tracksOfs && controlOfs) {
+				const anims = e.parseAnimation(tracksOfs, controlOfs); 
+				mesh.animations = anims;
+			}
+
+			setEntity(mesh)
 		})
 
 		if(hexId === name) {
