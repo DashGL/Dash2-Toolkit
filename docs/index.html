@@ -1,189 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
 
-		<link rel='icon' href='/whale.svg' color='#fff'>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+	<meta charset="UTF-8" />
 
-		<meta name="twitter:card" content="summary_large_image" />
-		<meta name="twitter:site" content="@kion_dgl" />
-		<meta name="twitter:creator" content="@kion_dgl" />
-		
-		<meta property="og:title" content="MML2 State Viewer" />
-		<meta property="og:description" content="MML2SaveStateViewer is a tool for visualizing the state of memory in Megaman Legends 2 for the PlayStation(PSX)" />
-		<meta property="og:url" content="https://mml2.dashgl.com/" />
-		<meta
-			property="og:image"
-			content="https://user-images.githubusercontent.com/25621780/224491317-330eab52-6df5-4588-b006-5858f120564a.png"
-		/>
+	<link rel='icon' href='/whale.svg' color='#fff'>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-		<title>MML2 StateViewer</title>
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:site" content="@kion_dgl" />
+	<meta name="twitter:creator" content="@kion_dgl" />
 
-		<link rel='stylesheet' type='text/css' href='/layout.css'/>
+	<meta property="og:title" content="MML2 State Viewer" />
+	<meta property="og:description"
+		content="MML2SaveStateViewer is a tool for visualizing the state of memory in Megaman Legends 2 for the PlayStation(PSX)" />
+	<meta property="og:url" content="https://mml2.dashgl.com/" />
+	<meta property="og:image"
+		content="https://user-images.githubusercontent.com/25621780/224491317-330eab52-6df5-4588-b006-5858f120564a.png" />
 
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+	<title>MML2 StateViewer</title>
+
+	<link rel='stylesheet' type='text/css' href='/layout.css' />
+
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
 
 
 
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+		crossorigin="anonymous"></script>
 
-		<script src="https://kit.fontawesome.com/da43231f0c.js" crossorigin="anonymous"></script>
+	<script src="https://kit.fontawesome.com/da43231f0c.js" crossorigin="anonymous"></script>
 
-		<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+	<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
 
-		<script type="importmap">
+	<script type="importmap">
 			{
     			"imports": {
       				"three": "https://unpkg.com/three@<version>/build/three.module.js"
     			}
 			}
 		</script>
-		<script type="module" crossorigin src="/assets/index-71979d98.js"></script>
-	</head>
-	<body class='p-0'>
-		
-		
+  <script type="module" crossorigin src="/assets/index-eb33ed9c.js"></script>
+</head>
 
-		<!-- Start State Select -->
-		
-		<div class='appbar text-bg-dark p-2'>
+<body class='p-0'>
 
-    		<h1>
-      			<i class="fa-solid fa-whale"></i> MML2 SaveState Viewer
-    		</h1>
+	
 
-			<hr/>
+	<!-- Start State Select -->
 
-			<select id='state-dropdown' class="form-select">
-				<option>Currently no file</option>
-			</select>
-			
-			<div class='drop-area' id='asset-list'>
-				
-				<div class='icon'>
-					<i class="fa-solid fa-upload"></i>
-				</div>
+	<div class='appbar text-bg-dark p-2'>
 
-				<span>
-					Drag and drop here or 
-					<u id='file-trigger'>select</u> 
-					a file
-				</span>
-				<input type='file' id='file-select'/>
+		<h1>
+			<i class="fa-solid fa-whale"></i> MML2 SaveState Viewer
+		</h1>
+
+		<hr />
+
+		<select id='state-dropdown' class="form-select">
+			<option>Currently no file</option>
+		</select>
+
+		<div class='drop-area' id='asset-list'>
+
+			<div class='icon'>
+				<i class="fa-solid fa-upload"></i>
 			</div>
 
-			<hr/>
-
-			<section class='state-list'>
-				<nav class="nav mb-2 nav-pills nav-fill justify-content-between">
-					<a class="nav-link text-white active" href='#' aria-current="page">Entity</a>
-					<a class="nav-link text-white disabled" style='opacity: 0.5'>Player</a>
-					<a class="nav-link text-white disabled">Map</a>
-				</nav>
-
-				<ul class="list-group" id='asset-select'>
-				</ul>
-			</section>
-
-			<hr/>
-
-			<section class='feedback'>
-				
-				<div class='profile'>
-				</div>
-				
-				<h2>DashGL Project</h2>
-				<h3>@kion_dgl</h3>
-
-				<div class='bottom'>
-					<a href='https://www.youtube.com/@kion_dgl' target='_blank'>
-						<div class='circle yt'>
-							<i class="fa-brands fa-youtube"></i>
-						</div>
-					</a>
-				
-					<a href="https://twitter.com/intent/tweet?screen_name=kion_dgl&ref_src=twsrc%5Etfw" class="twitter-mention-button" data-show-count="false" target='_blank'>
-						<div class='circle tw'>
-							<i class="fa-brands fa-twitter"></i>
-						</div>
-					</a>
-				
-					<a href='https://www.patreon.com/dashkion' target='_blank'>
-						<div class='circle pt'>
-							<i class="fa-brands fa-patreon"></i>
-						</div>
-					</a>
-				</div>
-
-			</section>
-
+			<span>
+				Drag and drop here or
+				<u id='file-trigger'>select</u>
+				a file
+			</span>
+			<input type='file' id='file-select' />
 		</div>
 
-		<section id='state-list' class='state-list hide'>
-			<ul id='state-select' class="list-group list-group-flush">
-				<li class='list-group-item'>Stage 0x00 Area 0x00</li>
-				<li class='list-group-item'>Stage 0x00 Area 0x00</li>
-				<li class='list-group-item'>Stage 0x00 Area 0x00</li>
-				<li class='list-group-item'>Stage 0x00 Area 0x00</li>
-				<li class='list-group-item'>Stage 0x00 Area 0x00</li>
-				<li class='list-group-item'>Stage 0x00 Area 0x00</li>
-				<li class='list-group-item'>Stage 0x00 Area 0x00</li>
-				<li class='list-group-item'>Stage 0x00 Area 0x00</li>
+		<hr />
+
+		<section class='state-list'>
+			<nav class="nav mb-2 nav-pills nav-fill justify-content-between">
+				<a class="nav-link text-white active" href='#' aria-current="page">Entity</a>
+				<a class="nav-link text-white disabled" style='opacity: 0.5'>Player</a>
+				<a class="nav-link text-white disabled">Map</a>
+			</nav>
+
+			<ul class="list-group" id='asset-select'>
 			</ul>
 		</section>
 
-		<div class='version'>
-			v0.1
-		</div>
+		<hr />
 
-		
-		
+		<section class='feedback'>
 
-		<!-- End State Select -->
+			<div class='profile'>
+			</div>
 
-		<!--  Start Main -->
+			<h2>DashGL Project</h2>
+			<h3>@kion_dgl</h3>
 
-		<div class='top-nav'>
-			<li id='toggle-btn'>
-				<i class="fa-solid fa-list-check"></i>
-			</li>
-			</a>
-			<li id='download'>
-				<i class="fa-sharp fa-solid fa-download"></i>
-			</li>
-			<a href='https://github.com/DashGL/Tool-MML2SaveStateViewer' target='_blank'>
-				<li>
-					<i class="fa-brands fa-github"></i>
-				</li>
-			</a>
-		</div>
-		
-		<div class='right-nav'>
-			
-			<li id='tool-screenshot' data-text='Take Screenshot'>
-				<i class="fa-duotone fa-camera"></i>	
-			</li>
-			<li id='tool-skeleton' data-text='Show/Hide Skeleton'>
-				<i class="fa-duotone fa-skeleton"></i>
-			</li>
-			<li id='tool-grid' data-text='Show/Hide Grid'>
-				<i class="fa-duotone fa-grid"></i>
-			</li>
-			<li id='tool-reset' data-text='Reset Camera'>
-				<i class="fa-solid fa-camera-movie"></i>
-			</li>
+			<div class='bottom'>
+				<a href='https://www.youtube.com/@kion_dgl' target='_blank'>
+					<div class='circle yt'>
+					</div>
+				</a>
 
-		</div>
+				<a href="https://twitter.com/intent/tweet?screen_name=kion_dgl&ref_src=twsrc%5Etfw"
+					class="twitter-mention-button" data-show-count="false" target='_blank'>
+					<div class='circle tw'>
+					</div>
+				</a>
 
-		<canvas id='canvas'></canvas>
-		
+				<a href='https://www.patreon.com/dashkion' target='_blank'>
+					<div class='circle pt'>
+					</div>
+				</a>
+			</div>
 
-		<!-- End Main -->
+		</section>
 
-		<!-- Scripts -->
+	</div>
 
-			
+	<section id='state-list' class='state-list hide'>
+		<ul id='state-select' class="list-group list-group-flush">
+			<li class='list-group-item'>Stage 0x00 Area 0x00</li>
+			<li class='list-group-item'>Stage 0x00 Area 0x00</li>
+			<li class='list-group-item'>Stage 0x00 Area 0x00</li>
+			<li class='list-group-item'>Stage 0x00 Area 0x00</li>
+			<li class='list-group-item'>Stage 0x00 Area 0x00</li>
+			<li class='list-group-item'>Stage 0x00 Area 0x00</li>
+			<li class='list-group-item'>Stage 0x00 Area 0x00</li>
+			<li class='list-group-item'>Stage 0x00 Area 0x00</li>
+		</ul>
+	</section>
 
-	</body>
+	<div class='version'>
+		v0.1
+	</div>
+
+	
+	
+
+	<!-- End State Select -->
+
+	<!--  Start Main -->
+
+	<div class='top-nav'>
+		<li id='toggle-btn'></li>
+		<li id='download'></li>
+		<a href='https://github.com/DashGL/Tool-MML2SaveStateViewer' target='_blank'>
+			<li id="github"></li>
+		</a>
+	</div>
+
+	<div class='right-nav'>
+
+		<li id='tool-screenshot' data-text='Take Screenshot'>
+		</li>
+		<li id='tool-skeleton' data-text='Show/Hide Skeleton'>
+		</li>
+		<li id='tool-grid' data-text='Show/Hide Grid'>
+		</li>
+		<li id='tool-reset' data-text='Reset Camera'>
+		</li>
+
+	</div>
+
+	<div class='anim-controls hide' id='anim.controls'>
+		<select id='anim.select'>
+			<option>No Animation</option>
+		</select>
+		<button id='anim.play'>Play</button>
+		<button id='anim.pause'>Pause</button>
+		<button id='anim.stop'>Stop</button>
+		<button id='anim.next'>Next</button>
+		<button id='anim.prev'>Prev</button>
+		<input id='anim.frame' type='range'/>
+	</div>
+
+	<canvas id='canvas'></canvas>
+	
+
+	<!-- End Main -->
+
+	<!-- Scripts -->
+
+	
+
+</body>
+
 </html>

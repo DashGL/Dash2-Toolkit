@@ -420,7 +420,7 @@ class Entity {
 				hierarchy: [],
 			}
 
-			this.bones.forEach((b, boneIndex) => {
+			this.bones.forEach((_b, boneIndex) => {
 				animation.hierarchy.push({
 					parent: boneIndex - 1,
 					keys: [],
@@ -432,11 +432,9 @@ class Entity {
 			const keyframes = keyFrameDict[source];
 			for(let i = 0; i < length; i++) {
 				const a = this.reader.readUInt8();
-				const b = this.reader.readUInt8();
-				const c = this.reader.readUInt8();
-				const d = this.reader.readUInt8();
+				this.reader.seekRel(3);
+				
 				const keyframe = keyframes[a];
-
 				this.bones.forEach( (bone, boneIndex) => {
 					const key: AnimationKey = {
 						time: i / 30,
