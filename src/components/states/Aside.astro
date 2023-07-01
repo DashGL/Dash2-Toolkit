@@ -1,3 +1,7 @@
+---
+import DropZone from "./aside/DropZone.astro"
+---
+
 <aside
     id="sidebar-double"
     class="flex z-40 fixed top-[3.5rem] left-0 h-full transition-transform -translate-x-full lg:translate-x-0"
@@ -7,15 +11,8 @@
         id="secondary-sidenav"
         class="overflow-y-auto py-5 px-3 w-64 h-full bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 transition-transform left-0 top-0 transform-none"
     >
-        <div class="block relative">
-            <select
-                id="state"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            >
-                <option>Select State</option>
-            </select>
-        </div>
-
+        <DropZone/>
+        
         <form action="#" method="GET" class="md:hidden mb-2">
             <label for="sidebar-search" class="sr-only">Search</label>
             <div class="relative">
@@ -44,7 +41,7 @@
                 />
             </div>
         </form>
-        <ul class="space-y-2">
+        <ul class="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
             <li>
                 <a
                     href="#"
@@ -323,73 +320,7 @@
                 </ul>
             </li>
         </ul>
-        <ul
-            class="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700"
-        >
-            <li>
-                <a
-                    href="#"
-                    class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
-                >
-                    <span>Docs</span>
-                </a>
-            </li>
-            <li>
-                <a
-                    href="#"
-                    class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
-                >
-                    <span>Components</span>
-                </a>
-            </li>
-            <li>
-                <a
-                    href="#"
-                    class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
-                >
-                    <span>Help</span>
-                </a>
-            </li>
-        </ul>
-        <div
-            class="flex absolute -left-4 bottom-16 z-20 justify-end w-full bg-white dark:bg-gray-800"
-        >
-            <button
-                id="show-secondary-sidenav-button"
-                aria-controls="secondary-sidenav"
-                type="button"
-                class="inline-flex p-2 text-gray-500 rounded-full cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-                <svg
-                    class="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    ><path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 19l-7-7 7-7"></path></svg
-                >
-            </button>
-        </div>
+
     </div>
-    <button
-        id="hide-secondary-sidenav-button"
-        aria-controls="secondary-sidenav"
-        type="button"
-        class="absolute bottom-16 left-20 p-2 text-gray-500 rounded-full cursor-pointer dark:text-gray-400 hover:text-gray-900 hover:bg-gray-200 dark:hover:bg-gray-700 dark:bg-gray-900 dark:hover:text-white bg-white hidden"
-    >
-        <svg
-            class="w-6 h-6"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-            ><path
-                fill-rule="evenodd"
-                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                clip-rule="evenodd"></path></svg
-        >
-    </button>
+
 </aside>
