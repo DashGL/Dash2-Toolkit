@@ -18,12 +18,19 @@
 
 */
 
-// Imports
+import localForage from "localforage";
+import type { SaveState } from "./types";
 
+const store = localForage.createInstance({
+  name: "MML2-StateViewer",
+});
 
+const setState = async (name: string) => {
+  const saveState = await store.getItem(name);
+  if (!saveState) {
+    return;
+  }
 
-const stateDropdown = document.getElementById(
-  "state-dropdown"
-)! as HTMLSelectElement;
-
-document.addEventListener("DOMContentLoaded", () => {});
+  const { mem, vram } = saveState as SaveState;
+  stateDropdown.value = name;
+};
