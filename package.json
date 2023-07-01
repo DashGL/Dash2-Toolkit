@@ -11,7 +11,13 @@
   },
   "dependencies": {
     "@astrojs/tailwind": "^4.0.0",
+    "@three-ts/orbit-controls": "^1.4.7",
     "astro": "^2.7.1",
-    "tailwindcss": "^3.3.2"
+    "file-saver": "^2.0.5",
+    "tailwindcss": "^3.3.2",
+    "three": "^0.154.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.152.1"
   }
 }

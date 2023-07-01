@@ -1,56 +1,8 @@
 <main
-    class="bg-gray-50 dark:bg-gray-900 p-4 lg:ml-80 lg:mr-16 h-full space-y-4"
+    class="bg-gray-50 dark:bg-gray-900 fixed top-[3.5rem] h-full"
+    style="width: calc(100% - 320px); left: 256px"
 >
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-16 h-1/6">
-        <div
-            class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl h-32 lg:h-64"
-        >
-        </div>
-        <div
-            class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl h-32 lg:h-64"
-        >
-        </div>
-        <div
-            class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl"
-        >
-        </div>
-        <div
-            class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl h-32 lg:h-64"
-        >
-        </div>
-    </div>
-    <div class="grid grid-cols-2 gap-4 h-1/4">
-        <div
-            class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl h-48 lg:h-96"
-        >
-        </div>
-        <div
-            class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl h-48 lg:h-96"
-        >
-        </div>
-    </div>
-    <div class="grid grid-cols-3 gap-4 h-1/4">
-        <div
-            class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl h-32 lg:h-64"
-        >
-        </div>
-        <div
-            class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl h-32 lg:h-64"
-        >
-        </div>
-        <div
-            class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl h-32 lg:h-64"
-        >
-        </div>
-    </div>
-    <div class="grid grid-cols-2 gap-4 h-1/4">
-        <div
-            class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl h-48 lg:h-96"
-        >
-        </div>
-        <div
-            class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl h-48 lg:h-96"
-        >
-        </div>
-    </div>
+    <canvas id="canvas"></canvas>
 </main>
+
+<script src="@scripts/state/canvas"></script>
