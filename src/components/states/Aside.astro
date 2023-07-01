@@ -3,11 +3,19 @@
     class="flex z-40 fixed top-[3.5rem] left-0 h-full transition-transform -translate-x-full lg:translate-x-0"
     aria-label="Sidebar"
 >
-
     <div
         id="secondary-sidenav"
         class="overflow-y-auto py-5 px-3 w-64 h-full bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 transition-transform left-0 top-0 transform-none"
     >
+        <div class="block relative">
+            <select
+                id="state"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            >
+                <option>Select State</option>
+            </select>
+        </div>
+
         <form action="#" method="GET" class="md:hidden mb-2">
             <label for="sidebar-search" class="sr-only">Search</label>
             <div class="relative">
