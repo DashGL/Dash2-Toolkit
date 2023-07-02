@@ -1,6 +1,7 @@
 ---
 import DropZone from "./aside/DropZone.astro"
 import SelectState from "./aside/SelectState.astro"
+import SolidState from "./aside/SelectState"
 ---
 
 <aside
@@ -16,6 +17,8 @@ import SelectState from "./aside/SelectState.astro"
         <DropZone/>
 
         <SelectState/>
+
+        <SolidState client:visible/>
         
         <form action="#" method="GET" class="md:hidden mb-2">
             <label for="sidebar-search" class="sr-only">Search</label>

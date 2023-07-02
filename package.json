@@ -10,12 +10,14 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/solid-js": "^2.2.0",
     "@astrojs/tailwind": "^4.0.0",
     "@three-ts/orbit-controls": "^1.4.7",
     "astro": "^2.7.1",
     "file-saver": "^2.0.5",
     "localforage": "^1.10.0",
     "pako": "^2.1.0",
+    "solid-js": "^1.7.7",
     "tailwindcss": "^3.3.2",
     "three": "^0.154.0"
   },

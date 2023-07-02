@@ -4,7 +4,10 @@
     "baseUrl": ".",
     "paths": {
       "@components/*": ["src/components/*"],
-      "@scripts/*": ["src/scripts/*"]
-    }
+      "@scripts/*": ["src/scripts/*"],
+      "@types/*": ["src/types/*"]
+    },
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js"
   }
 }
