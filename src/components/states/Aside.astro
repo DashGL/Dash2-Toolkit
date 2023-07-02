@@ -1,7 +1,6 @@
 ---
-import DropZone from "./aside/DropZone.astro"
-import SelectState from "./aside/SelectState.astro"
-import SolidState from "./aside/SelectState"
+import DropZone from "./aside/DropZone"
+import SelectState from "./aside/SelectState"
 ---
 
 <aside
@@ -14,11 +13,8 @@ import SolidState from "./aside/SelectState"
         class="overflow-y-auto py-5 px-3 w-64 h-full bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 transition-transform left-0 top-0 transform-none"
     >
 
-        <DropZone/>
-
-        <SelectState/>
-
-        <SolidState client:visible/>
+        <DropZone client:visible/>
+        <SelectState client:visible/>
         
         <form action="#" method="GET" class="md:hidden mb-2">
             <label for="sidebar-search" class="sr-only">Search</label>
