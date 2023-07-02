@@ -1,45 +1,17 @@
-/*
-
-	Copyright (C) 2023 DashGL - Benjamin Collins
-	This file is part of MML2 StateViewer
-
-	MML2 StateViewer is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
-
-	MML2 StateViewer is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with MML2 StateViewer. If not, see <http://www.gnu.org/licenses/>.
-
-*/
-
+import type { SaveState } from "@scripts/state/types";
 import pako from "pako";
-import type { SaveState } from "./types";
+import { addSaveState } from "@scripts/state/StateSelect";
 
 const fileSelect = document.getElementById("file-select")!;
 
-document.addEventListener("DOMContentLoaded", () => {
-  fileSelect.addEventListener("change", handleFileSelect);
-});
-
-const handleFileSelect = async (event: Event) => {
-  const { files } = event!.target as HTMLInputElement;
-
-  if (!files) {
-    return;
-  }
-
-  const { length } = files;
-  for (let i = 0; i < length; i++) {
-    await handleFile(files[i], true);
-  }
-};
-
+/**
+ *
+ * Checks to see if a buffer is compressed, and decompresses it with GZip
+ *
+ * @param buffer - The input buffer
+ * @returns buffer - The decompressed buffer
+ *
+ */
 const decompress = (buffer: ArrayBuffer) => {
   const GZIP_HEADER = 0x8b1f;
   const view = new DataView(buffer);
@@ -52,6 +24,16 @@ const decompress = (buffer: ArrayBuffer) => {
   const decompressed = pako.ungzip(buffer);
   return decompressed.buffer;
 };
+
+/**
+ * Splits a save state into it's memory and vram components
+ *
+ * @remarks
+ * This currently only supports DuckStation and PCSX save states
+ *
+ * @param buffer - The decompressed save state
+ * @returns saveState - An object with 2MB memory and 1MB vram as their own arraybuffers
+ */
 
 const splitState = (buffer: ArrayBuffer): SaveState => {
   const mem_len = 0x200000;
@@ -102,24 +84,19 @@ const splitState = (buffer: ArrayBuffer): SaveState => {
   };
 };
 
-const getStateName = (buffer: ArrayBuffer) => {
-  const stage_ofs = 0x9c808;
-  const area_ofs = 0x9c809;
+fileSelect.addEventListener("change", async (event: Event) => {
+  const { files } = event!.target as HTMLInputElement;
 
-  const view = new DataView(buffer);
-  const stage = view.getUint8(stage_ofs);
-  const area = view.getUint8(area_ofs);
+  if (!files) {
+    return;
+  }
 
-  const stageHex = stage.toString(16).padStart(2, "0");
-  const areaHex = area.toString(16).padStart(2, "0");
-  return `Stage 0x${stageHex} Area 0x${areaHex}`;
-};
-
-const handleFile = async (file: File, setActive: boolean) => {
-  const buffer = await file.arrayBuffer();
-  const decompressed = decompress(buffer);
-  const saveState = splitState(decompressed);
-  const { mem } = saveState;
-  const name = getStateName(mem);
-  console.log(name);
-};
+  const { length } = files;
+  for (let i = 0; i < length; i++) {
+    const file = files[i];
+    const buffer = await file.arrayBuffer();
+    const decompressed = decompress(buffer);
+    const saveState = splitState(decompressed);
+    addSaveState(saveState);
+  }
+});
