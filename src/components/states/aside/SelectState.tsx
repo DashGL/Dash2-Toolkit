@@ -21,8 +21,9 @@
 import type { SaveState } from "@scripts/index";
 import localForage from "localforage";
 import { For, createSignal } from "solid-js";
-import { scanMemory } from "./AssetList"
+import { scanMemory } from "./AssetList";
 import pako from "pako";
+import { setFramebuffer } from "@scripts/Framebuffer";
 
 const store = localForage.createInstance({
   name: "MML2-StateViewer",
@@ -149,7 +150,7 @@ const addSaveState = async (file: File): Promise<void> => {
   const buffer = await file.arrayBuffer();
   const decompressed = decompress(buffer);
   const saveState = splitState(decompressed);
-  const { mem } = saveState;
+  const { mem, vram } = saveState;
   const name = getStateName(mem);
   await store.setItem(name, saveState);
   const keys = await store.keys();
@@ -157,39 +158,39 @@ const addSaveState = async (file: File): Promise<void> => {
   const list = [nullOption, ...keys];
   setList(list);
   setValue(name);
-  scanMemory(name, mem)
+  setFramebuffer(vram);
+  scanMemory(name, mem);
 };
 
 const setSelectedIndex = async (evt: Event) => {
   // Get the name of the selected Save State
-  console.log('a')
+  console.log("a");
   const { target } = evt;
   const t = target as HTMLSelectElement;
   const name = t.value;
 
   // Update the Solidjs Signal for the UI
-  console.log('b')
-  setValue(name)
+  console.log("b");
+  setValue(name);
 
   // Get the save state from LocalForage
-  console.log('c')
-  const saveState = await store.getItem(name) as SaveState;
+  console.log("c");
+  const saveState = (await store.getItem(name)) as SaveState;
   const { mem, vram } = saveState;
-  console.log(mem)
+  console.log(mem);
+  setFramebuffer(vram);
   scanMemory(name, mem);
-
 };
 
 const StateSelect = () => {
   return (
-      <select
-        onChange={setSelectedIndex}
-        value={value()}
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-      >
-        <For each={list()}>{(li) => <option>{li}</option>}</For>
-      </select>
-    
+    <select
+      onChange={setSelectedIndex}
+      value={value()}
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+    >
+      <For each={list()}>{(li) => <option>{li}</option>}</For>
+    </select>
   );
 };
 

@@ -35,8 +35,8 @@ const getEntityList = (mem: ArrayBuffer):EntityHeader[] => {
 		const name = character ? character.name : id;
 
 		// Check if the if the id contains the flag indicating a character
-		if(!(rawId & 0x20)) {
-			continue
+		if(id.slice(-2) !== '20') {
+			continue;
 		}
 
 		list.push({
