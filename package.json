@@ -14,6 +14,7 @@
     "@astrojs/tailwind": "^4.0.0",
     "@three-ts/orbit-controls": "^1.4.7",
     "astro": "^2.7.1",
+    "bytereader": "^0.1.0",
     "file-saver": "^2.0.5",
     "localforage": "^1.10.0",
     "pako": "^2.1.0",

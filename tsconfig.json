@@ -3,6 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "@content/*": ["src/content/*"],
       "@components/*": ["src/components/*"],
       "@scripts/*": ["src/scripts/*"],
       "@types/*": ["src/types/*"]

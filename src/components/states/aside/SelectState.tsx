@@ -21,6 +21,7 @@
 import type { SaveState } from "@scripts/state/types";
 import localForage from "localforage";
 import { For, createSignal } from "solid-js";
+import { scanMemory } from "./AssetList"
 import pako from "pako";
 
 const store = localForage.createInstance({
@@ -28,7 +29,8 @@ const store = localForage.createInstance({
 });
 
 const nullOption = "Select State";
-const [list, setList] = createSignal(["nullOption"]);
+const [list, setList] = createSignal([nullOption]);
+const [value, setValue] = createSignal(nullOption);
 
 store.keys().then((keys) => {
   keys.sort();
@@ -154,22 +156,35 @@ const addSaveState = async (file: File): Promise<void> => {
   keys.sort();
   const list = [nullOption, ...keys];
   setList(list);
-  const index = list.indexOf(name);
-  const select = document.getElementById('savestate-select')! as HTMLSelectElement;
-  select.selectedIndex = index;
+  setValue(name);
+  scanMemory(name, mem)
 };
 
-const setSelectedIndex = (evt: Event) => {
+const setSelectedIndex = async (evt: Event) => {
+  // Get the name of the selected Save State
+  console.log('a')
   const { target } = evt;
   const t = target as HTMLSelectElement;
-  const index = t.selectedIndex;
+  const name = t.value;
+
+  // Update the Solidjs Signal for the UI
+  console.log('b')
+  setValue(name)
+
+  // Get the save state from LocalForage
+  console.log('c')
+  const saveState = await store.getItem(name) as SaveState;
+  const { mem, vram } = saveState;
+  console.log(mem)
+  scanMemory(name, mem);
+
 };
 
 const StateSelect = () => {
   return (
       <select
         onChange={setSelectedIndex}
-        id="savestate-select"
+        value={value()}
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
       >
         <For each={list()}>{(li) => <option>{li}</option>}</For>
