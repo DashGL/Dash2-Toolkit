@@ -18,7 +18,7 @@
 
 */
 
-import type { SaveState } from "@scripts/state/types";
+import type { SaveState } from "@scripts/index";
 import localForage from "localforage";
 import { For, createSignal } from "solid-js";
 import { scanMemory } from "./AssetList"

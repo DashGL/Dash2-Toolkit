@@ -5,8 +5,7 @@
     "paths": {
       "@content/*": ["src/content/*"],
       "@components/*": ["src/components/*"],
-      "@scripts/*": ["src/scripts/*"],
-      "@types/*": ["src/types/*"]
+      "@scripts/*": ["src/scripts/*"]
     },
     "jsx": "preserve",
     "jsxImportSource": "solid-js"
