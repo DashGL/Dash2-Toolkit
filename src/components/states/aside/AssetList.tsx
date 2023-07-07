@@ -18,7 +18,7 @@
 
 */
 
-import { For, createSignal } from "solid-js";
+import { For, createSignal, onMount } from "solid-js";
 import { getEntityList } from "@scripts/index";
 import type { EntityHeader } from "@scripts/index";
 import { Entity } from "@scripts/ReadEntity";
@@ -29,65 +29,55 @@ const [selectName, setSelected] = createSignal("");
 const [memory, setMemory] = createSignal<ArrayBuffer | undefined>();
 const [entityList, setEntityList] = createSignal<EntityHeader[]>([]);
 
-/**
- *
- * Sets the save state to scan for assets which will appear as clickable items in the component
- *
- * @param name - The name of the save state as defined by the state and area to act as a label
- * @param mem - The 2MB of main memory from a Save State to search for assets
- * @returns null
- *
- */
+// CSS Constants for List Items
 
-const scanMemory = (name: string, mem: ArrayBuffer): void => {
-  console.log(name);
-  setMemName(name);
-  setMemory(mem);
-  const entities = getEntityList(mem);
-  console.log(entities);
-  setEntityList(entities);
+const listItem = [
+  "flex",
+  "items-center",
+  "p-2",
+  "pl-6",
+  "w-full",
+  "text-base",
+  "font-medium",
+  "text-gray-900",
+  "rounded-lg",
+  "transition",
+  "duration-75",
+  "group",
+  "hover:bg-gray-100",
+  "dark:text-white",
+  "dark:hover:bg-gray-700",
+];
+
+const activeListItem = [...listItem, "bg-gray-100", "dark:bg-gray-700"];
+
+
+
+const handleEntityClick = (e: EntityHeader) => {
+  const mem = memory();
+  setSelected(e.name)
+  const reader = new Entity(mem!);
+  const mesh = reader.parseMesh(e.meshOfs);
+  mesh.name = e.name
+
+  if(e.tracksOfs && e.controlOfs) {
+    const anims = reader.parseAnimation(e.tracksOfs, e.controlOfs); 
+    mesh.animations = anims;
+  }
+
+  console.log(mesh);
+  setEntity(mesh)
 };
 
+
 const AssetList = () => {
-  const handleEntityClick = (e: EntityHeader) => {
-    const mem = memory();
-    setSelected(e.name)
-    const reader = new Entity(mem!);
-    const mesh = reader.parseMesh(e.meshOfs);
-		mesh.name = e.name
 
-    if(e.tracksOfs && e.controlOfs) {
-      const anims = reader.parseAnimation(e.tracksOfs, e.controlOfs); 
-      mesh.animations = anims;
-    }
-
-    console.log(mesh);
-    setEntity(mesh)
-  };
-
-  const listItem = [
-    "flex",
-    "items-center",
-    "p-2",
-    "pl-6",
-    "w-full",
-    "text-base",
-    "font-medium",
-    "text-gray-900",
-    "rounded-lg",
-    "transition",
-    "duration-75",
-    "group",
-    "hover:bg-gray-100",
-    "dark:text-white",
-    "dark:hover:bg-gray-700",
-  ];
-
-  const activeListItem = [...listItem, "bg-gray-100", "dark:bg-gray-700"];
 
   return (
     <div>
-      <h5 class="text-sm font-medium uppercase text-gray-500 p-2 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
+      <h5 
+      id="state-label"
+      class="text-sm font-medium uppercase text-gray-500 p-2 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
         {memName()}
       </h5>
 
@@ -114,7 +104,7 @@ const AssetList = () => {
               ></path>
             </svg>
           </button>
-          <ul id="dropdown-realtime" class="py-2 space-y-2">
+          <ul id="entity-list" class="py-2 space-y-2">
             <For each={entityList()}>
               {(e) => (
                 <li
@@ -202,6 +192,41 @@ const AssetList = () => {
       </ul>
     </div>
   );
+};
+
+/**
+ *
+ * Sets the save state to scan for assets which will appear as clickable items in the component
+ *
+ * @param name - The name of the save state as defined by the state and area to act as a label
+ * @param mem - The 2MB of main memory from a Save State to search for assets
+ * @returns null
+ *
+ */
+
+const scanMemory = (name: string, mem: ArrayBuffer): void => {
+  setMemName(name);
+  setMemory(mem);
+
+  const entities = getEntityList(mem);
+  setEntityList(entities);
+
+  // Manually re-render because solidjs won't update?
+  
+  const label = document.getElementById("state-label")!
+  label.textContent = name;
+
+  const eList = document.getElementById("entity-list")!;
+  eList.innerHTML = ""
+  entities.forEach( e => {
+    const li = document.createElement("li");
+    li.textContent = e.name;
+    li.setAttribute("class", listItem.join(" "));
+    eList.appendChild(li);
+    li.addEventListener("click", ()=> {
+      handleEntityClick(e)
+    });
+  });
 };
 
 export default AssetList;
