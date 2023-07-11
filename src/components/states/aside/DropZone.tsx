@@ -58,11 +58,11 @@ const DropZone = () => {
   return (
     <div
       ref={setDropZoneRef}
-      class="flex items-center justify-center w-full mb-2"
+      class="flex items-center justify-center"
     >
       <label
         for="file-select"
-        class="flex flex-col items-center justify-center w-full h-10 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
+        class="flex flex-col px-4 items-center justify-center w-full h-10 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
       >
         <div class="flex flex-row items-center justify-center">
           <p class="text-sm text-gray-500 dark:text-gray-400">
