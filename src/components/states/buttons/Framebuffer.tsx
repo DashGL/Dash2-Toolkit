@@ -20,7 +20,7 @@
 
 const Framebuffer = () => {
   const handleClick = () => {
-    console.log("click");
+    console.log("Show framebuffer");
   };
 
   return (

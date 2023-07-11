@@ -23,12 +23,14 @@
 import * as THREE from "three";
 import { OrbitControls } from "@three-ts/orbit-controls";
 import { createSignal, onMount } from "solid-js";
+import { saveAs } from "file-saver";
 
 const [canvasRef, setCanvasRef] = createSignal<HTMLCanvasElement>();
 
 let skelHelper: THREE.SkeletonHelper | null;
 
 type MainMemory = {
+  mount: boolean;
   mesh: THREE.Mesh | null;
   mixer: THREE.AnimationMixer | null;
   action: THREE.AnimationAction | null;
@@ -40,6 +42,7 @@ type MainMemory = {
 };
 
 const viewer: MainMemory = {
+  mount: false,
   mesh: null,
   mixer: null,
   action: null,
@@ -108,25 +111,35 @@ const setEntity = (mesh: THREE.SkinnedMesh) => {
 };
 
 /**
+ *
+ * Takes a screenshot of the current viewport and downloads it as a png
  * 
+ * @returns null
+ *
  */
 
-const takeScreeenshot = () => {
+
+const takeScreeenshot = async () => {
+
+  const mime = "image/png";
+  const url = viewer.renderer!.domElement.toDataURL(mime);
+  const req = await fetch(url);
+  const blob = await req.blob();
+  saveAs(blob, "screenshot.png");
 
 }
 
 const Viewport = () => {
   onMount(() => {
     const canvas = canvasRef()!;
-    viewer.canvas = canvas;
+    viewer.mount = true;
     viewer.renderer = new THREE.WebGLRenderer({
       canvas,
       preserveDrawingBuffer: true,
       antialias: true,
-			alpha : true,
+      alpha : true,
     });
-
-    viewer.renderer.setClearColor(new THREE.Color(0), 0);
+    viewer.renderer!.setClearColor(new THREE.Color(0), 0);
     const aspect = window.innerWidth / window.innerHeight;
     const camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
     viewer.camera = camera;
@@ -142,10 +155,23 @@ const Viewport = () => {
     updateDimensions();
     resetCamera();
     animate();
+
+    window.addEventListener("message",async  (event) => {
+      const { data } = event;
+
+      console.log(data);
+
+      switch(data) {
+        case "screenshot":
+          takeScreeenshot();
+          break;
+      }
+    });
+
   });
 
   return <canvas ref={setCanvasRef} id="canvas"></canvas>;
 };
 
 export default Viewport;
-export { setEntity, takeScreeenshot };
+export { setEntity };

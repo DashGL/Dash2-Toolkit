@@ -20,7 +20,7 @@
 
 const Grid = () => {
   const handleClick = () => {
-    console.log("click");
+    window.postMessage("grid");    
   };
 
   return (

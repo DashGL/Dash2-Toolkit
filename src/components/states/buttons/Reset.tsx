@@ -20,7 +20,7 @@
 
 const Reset = () => {
   const handleClick = () => {
-    console.log("click");
+    window.postMessage("reset");    
   };
 
   return (

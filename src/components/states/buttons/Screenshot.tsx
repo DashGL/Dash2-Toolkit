@@ -21,7 +21,7 @@
 const Screenshot = () => {
 
   const handleClick = () => {
-    console.log("click");
+    window.postMessage("screenshot");    
   }
 
   return (
