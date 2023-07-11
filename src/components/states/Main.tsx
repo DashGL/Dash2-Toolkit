@@ -107,6 +107,14 @@ const setEntity = (mesh: THREE.SkinnedMesh) => {
   viewer.scene!.add(mesh);
 };
 
+/**
+ * 
+ */
+
+const takeScreeenshot = () => {
+
+}
+
 const Viewport = () => {
   onMount(() => {
     const canvas = canvasRef()!;
@@ -114,6 +122,8 @@ const Viewport = () => {
     viewer.renderer = new THREE.WebGLRenderer({
       canvas,
       preserveDrawingBuffer: true,
+      antialias: true,
+			alpha : true,
     });
 
     viewer.renderer.setClearColor(new THREE.Color(0), 0);
@@ -138,4 +148,4 @@ const Viewport = () => {
 };
 
 export default Viewport;
-export { setEntity };
+export { setEntity, takeScreeenshot };
