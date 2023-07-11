@@ -134,14 +134,7 @@ const Viewport = () => {
     animate();
   });
 
-  return (
-    <main
-      class="bg-gray-50 dark:bg-gray-900 fixed top-[3.5rem] h-full"
-      style="width: calc(100% - 320px); left: 256px"
-    >
-      <canvas ref={setCanvasRef} id="canvas"></canvas>
-    </main>
-  );
+  return <canvas ref={setCanvasRef} id="canvas"></canvas>;
 };
 
 export default Viewport;
