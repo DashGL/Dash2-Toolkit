@@ -51,8 +51,6 @@ const listItem = [
 
 const activeListItem = [...listItem, "bg-gray-100", "dark:bg-gray-700"];
 
-
-
 const handleEntityClick = (e: EntityHeader) => {
   const mem = memory();
   setSelected(e.name)
@@ -72,7 +70,6 @@ const handleEntityClick = (e: EntityHeader) => {
 
 const AssetList = () => {
 
-
   return (
     <div>
       <h5 
@@ -86,8 +83,8 @@ const AssetList = () => {
           <button
             type="button"
             class="flex items-center p-2 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-            aria-controls="dropdown-realtime"
-            data-collapse-toggle="dropdown-realtime"
+            aria-controls="entity-list"
+            data-collapse-toggle="entity-list"
           >
             <span class="flex-1 text-left whitespace-nowrap">Entities</span>
             <svg
