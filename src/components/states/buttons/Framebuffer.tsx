@@ -18,9 +18,18 @@
 
 */
 
+import { getFramebuffer } from "@scripts/Framebuffer";
+import { saveAs } from "file-saver";
+
 const Framebuffer = () => {
-  const handleClick = () => {
-    console.log("Show framebuffer");
+  const handleClick = async() => {
+    const url = getFramebuffer();
+    if(!url) {
+      return;
+    }
+    const req = await fetch(url);
+    const blob = await req.blob();
+    saveAs(blob, "framebuffer.png");
   };
 
   return (
@@ -64,7 +73,7 @@ const Framebuffer = () => {
         role="tooltip"
         class="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip"
       >
-        View Framebuffer
+        Export Framebuffer
         <div class="tooltip-arrow" data-popper-arrow></div>
       </div>
     </li>

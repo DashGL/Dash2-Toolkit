@@ -30,6 +30,36 @@ const setFramebuffer = (vram: ArrayBuffer) => {
   state.vram = vram;
 };
 
+const getFramebuffer = () => {
+  const { vram } = state;
+  if (!vram) {
+    return;
+  }
+
+  const view = new DataView(vram);
+  const canvas = document.createElement("canvas");
+
+  canvas.width = 1024;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d")!;
+  let ofs = 0;
+
+  for (let y = 0; y < 512; y++) {
+    for (let x = 0; x < 1024; x++) {
+      const color = view.getUint16(ofs, true);
+      const r = ((color >> 0x00) & 0x1f) << 3;
+      const g = ((color >> 0x05) & 0x1f) << 3;
+      const b = ((color >> 0x0a) & 0x1f) << 3;
+      const a = color > 0 ? 1 : 0;
+      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
+      ctx.fillRect(x, y, 1, 1);
+      ofs += 2;
+    }
+  }
+
+  return canvas.toDataURL("image/png");
+};
+
 const renderTexture = (imageCoords: number, paletteCoords: number) => {
   const { vram } = state;
   if (!vram) {
@@ -87,4 +117,4 @@ const renderTexture = (imageCoords: number, paletteCoords: number) => {
   return canvas;
 };
 
-export { renderTexture, setFramebuffer };
+export { renderTexture, getFramebuffer, setFramebuffer };

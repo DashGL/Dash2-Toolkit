@@ -31,8 +31,13 @@ import { Entity } from "@scripts/ReadEntity";
 const [getRenderer, setRenderer] = createSignal<
   THREE.WebGLRenderer | undefined
 >();
+// State that needs to be set onload
 const [canvasRef, setCanvasRef] = createSignal<HTMLCanvasElement>();
+const [getScreenshot, setScreenshot] = createSignal(-1);
+
+// States with fixed instances
 const [getScene] = createSignal(new THREE.Scene());
+const [getGrid] = createSignal(new THREE.GridHelper(100, 10));
 
 let skelHelper: THREE.SkeletonHelper | null;
 
@@ -62,13 +67,9 @@ const resetScene = () => {
   const scene = getScene();
   const { children } = scene;
   children.forEach((child) => {
-    switch (child.name) {
-      case "grid":
-        return;
-    }
-
     scene.remove(child);
   });
+  scene.add(getGrid());
 };
 
 // // Functions
@@ -92,18 +93,27 @@ const updateDimensions = () => {
 
 const animate = () => {
   requestAnimationFrame(animate);
+
+  const scene = getScene();
+  if (getScreenshot() === 0) {
+    scene.remove(getGrid());
+    setScreenshot(1);
+  } else if (getScreenshot() === 1) {
+    takeScreeenshot();
+    scene.add(getGrid());
+    setScreenshot(-1);
+  }
+
   if (viewer.mixer) {
     const delta = viewer.clock.getDelta();
     viewer.mixer.update(delta);
   }
 
   const renderer = getRenderer();
-  const scene = getScene();
   renderer!.render(scene, viewer.camera!);
 };
 
 const setEntity = (mem: ArrayBuffer, entity: EntityHeader) => {
-
   const reader = new Entity(mem!);
   const mesh = reader.parseMesh(entity.meshOfs);
   mesh.name = entity.name;
@@ -133,10 +143,14 @@ const handleMessage = async (event: MessageEvent) => {
 
   switch (message.type) {
     case "screenshot":
-      takeScreeenshot();
+      // takeScreeenshot();
+      setScreenshot(0);
       break;
     case "Entity":
       setEntity(message.mem!, message.entity!);
+      break;
+    case "reset":
+      resetCamera();
       break;
   }
 };
@@ -177,9 +191,7 @@ const Viewport = () => {
     new OrbitControls(camera, canvas);
 
     const scene = getScene();
-    const grid = new THREE.GridHelper(100, 10);
-    grid.name = "grid";
-    scene.add(grid);
+    scene.add(getGrid());
 
     window.addEventListener("resize", updateDimensions);
     window.addEventListener("message", handleMessage);
