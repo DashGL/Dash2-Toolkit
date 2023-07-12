@@ -2,7 +2,7 @@
 import Navbar from "../components/states/Navbar.astro";
 import Aside from "../components/states/Aside.astro";
 import Main from "../components/states/Main";
-import AnimControls from "@components/states/viewport/AnimControls.astro";
+import AnimControls from "../components/states/viewport/AnimControls";
 import Shortcuts from "../components/states/Shortcuts.astro";
 ---
 
@@ -21,7 +21,7 @@ import Shortcuts from "../components/states/Shortcuts.astro";
 				style="width: calc(100% - 320px); left: 256px; height: calc(100% - 3.5rem);"
 			>
 				<Main client:only />
-				<AnimControls/>
+				<AnimControls client:only/>
 			</main>
 			<Shortcuts />
 		</div>
