@@ -21,40 +21,82 @@
 import { For, createSignal } from "solid-js";
 
 const nullOption = "Choose an Animation";
-const [list, setList] = createSignal([nullOption]);
+const list = [nullOption];
 const [value, setValue] = createSignal(nullOption);
 
 const setAnimationList = (anims: THREE.AnimationClip[]) => {
   setValue(nullOption);
-  const list = [nullOption];
+  while (list.length > 1) {
+    list.pop();
+  }
+
   for (let i = 0; i < anims.length; i++) {
-    const opt = document.createElement("option");
-    opt.value = i.toString();
     const name = `anim_${i.toString().padStart(3, "0")}`;
-    opt.textContent = name;
     list.push(name);
   }
-  setList(list);
+
+  const select = document.getElementById("anim_select")! as HTMLSelectElement;
+  select.innerHTML = "";
+  list.forEach((name) => {
+    const opt = document.createElement("option");
+    opt.textContent = name;
+    select.appendChild(opt);
+  });
 };
 
 const AnimControls = () => {
   const handlePlayClick = () => {
-    console.log("Play");
+    window.postMessage({
+      type: "Play",
+    });
   };
 
   const handlePauseClick = () => {
-    console.log("Pause");
+    window.postMessage({
+      type: "Pause",
+    });
   };
+
   const handleNextClick = () => {
-    console.log("next");
+    const select = document.getElementById("anim_select")! as HTMLSelectElement;
+    const index = select.selectedIndex;
+
+    if (index === select.length - 1) {
+      return;
+    }
+
+    select.selectedIndex = index + 1;
+    window.postMessage({
+      type: "Animation",
+      index,
+    });
   };
+
   const handlePrevClick = () => {
-    console.log("prev");
+    const select = document.getElementById("anim_select")! as HTMLSelectElement;
+    const index = select.selectedIndex;
+
+    if (index === 0) {
+      return;
+    }
+
+    select.selectedIndex = index - 1;
+    window.postMessage({
+      type: "Animation",
+      index: index - 2,
+    });
   };
 
   const setSelectedIndex = () => {
+    const select = document.getElementById("anim_select")! as HTMLSelectElement;
+    const index = select.selectedIndex - 1;
+    console.log(index);
 
-  }
+    window.postMessage({
+      type: "Animation",
+      index,
+    });
+  };
 
   return (
     <section class="absolute w-full flex align-center justify-around left-0 bottom-4 z-20 list-none">
@@ -65,7 +107,7 @@ const AnimControls = () => {
           value={value()}
           class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
         >
-          <For each={list()}>{(li) => <option>{li}</option>}</For>
+          <For each={list}>{(li) => <option>{li}</option>}</For>
         </select>
       </div>
 

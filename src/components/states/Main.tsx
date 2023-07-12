@@ -135,13 +135,34 @@ const setEntity = (mem: ArrayBuffer, entity: EntityHeader) => {
   scene.add(mesh);
 };
 
+const setAnimation = (index: number) => {
+  const { mesh } = viewer;
+  if (!mesh) {
+    return;
+  }
+
+  if (viewer.action) {
+    viewer.action.stop();
+  }
+
+  if (index === -1) {
+    return;
+  }
+
+  const clip = mesh.animations[index];
+  const mixer = new THREE.AnimationMixer(mesh as THREE.Object3D);
+  const action = mixer.clipAction(clip, mesh as THREE.Object3D);
+  action.play();
+  viewer.action = action;
+  viewer.mixer = mixer;
+};
+
 const handleMessage = async (event: MessageEvent) => {
   const { data } = event;
   const message = data as PostMessage;
 
   switch (message.type) {
     case "screenshot":
-      // takeScreeenshot();
       setScreenshot(0);
       break;
     case "Entity":
@@ -149,6 +170,15 @@ const handleMessage = async (event: MessageEvent) => {
       break;
     case "reset":
       resetCamera();
+      break;
+    case "Animation":
+      setAnimation(message.index!);
+      break;
+    case "Play":
+      viewer.action && (viewer.action.play());
+      break;
+    case "Pause":
+      viewer.action && (viewer.action.paused = true);
       break;
   }
 };

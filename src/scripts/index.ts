@@ -16,7 +16,8 @@ type EntityHeader = {
 type PostMessage = {
   type: string;
   mem?: ArrayBuffer;
-  entity?: EntityHeader
+  entity?: EntityHeader;
+  index?: number;
 };
 
 export type { SaveState, EntityHeader, PostMessage };
