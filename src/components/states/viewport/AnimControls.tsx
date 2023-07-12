@@ -18,9 +18,24 @@
 
 */
 
-const setAnimationList = () => {
-    console.log("setting animation list");
-}
+import { For, createSignal } from "solid-js";
+
+const nullOption = "Choose an Animation";
+const [list, setList] = createSignal([nullOption]);
+const [value, setValue] = createSignal(nullOption);
+
+const setAnimationList = (anims: THREE.AnimationClip[]) => {
+  setValue(nullOption);
+  const list = [nullOption];
+  for (let i = 0; i < anims.length; i++) {
+    const opt = document.createElement("option");
+    opt.value = i.toString();
+    const name = `anim_${i.toString().padStart(3, "0")}`;
+    opt.textContent = name;
+    list.push(name);
+  }
+  setList(list);
+};
 
 const AnimControls = () => {
   const handlePlayClick = () => {
@@ -32,10 +47,13 @@ const AnimControls = () => {
   };
   const handleNextClick = () => {
     console.log("next");
-
-  }
+  };
   const handlePrevClick = () => {
     console.log("prev");
+  };
+
+  const setSelectedIndex = () => {
+
   }
 
   return (
@@ -43,9 +61,11 @@ const AnimControls = () => {
       <div>
         <select
           id="anim_select"
+          onChange={setSelectedIndex}
+          value={value()}
           class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
         >
-          <option selected>Choose an Animation</option>
+          <For each={list()}>{(li) => <option>{li}</option>}</For>
         </select>
       </div>
 
@@ -167,4 +187,4 @@ const AnimControls = () => {
 };
 
 export default AnimControls;
-export { setAnimationList }
+export { setAnimationList };

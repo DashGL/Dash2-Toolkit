@@ -22,7 +22,6 @@ import { For, createSignal, onMount } from "solid-js";
 import { getEntityList } from "@scripts/index";
 import type { EntityHeader } from "@scripts/index";
 import { Entity } from "@scripts/ReadEntity";
-import { setEntity } from "../Main";
 
 const [memName, setMemName] = createSignal("Save State");
 const [selectName, setSelected] = createSignal("");
@@ -51,20 +50,16 @@ const listItem = [
 
 const activeListItem = [...listItem, "bg-gray-100", "dark:bg-gray-700"];
 
-const handleEntityClick = (e: EntityHeader) => {
+const handleEntityClick = (entity: EntityHeader) => {
   const mem = memory();
-  setSelected(e.name)
-  const reader = new Entity(mem!);
-  const mesh = reader.parseMesh(e.meshOfs);
-  mesh.name = e.name
-
-  if(e.tracksOfs && e.controlOfs) {
-    const anims = reader.parseAnimation(e.tracksOfs, e.controlOfs); 
-    mesh.animations = anims;
-  }
-
-  console.log(mesh);
-  setEntity(mesh)
+  setSelected(entity.name)
+  
+  window.postMessage({
+    type: "Entity",
+    mem, 
+    entity, 
+  })
+  
 };
 
 

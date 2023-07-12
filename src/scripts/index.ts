@@ -1,4 +1,23 @@
-import type { SaveState, EntityHeader } from "./types";
 import getEntityList from "./getEntityList";
 
-export { SaveState, EntityHeader, getEntityList };
+type SaveState = {
+  mem: ArrayBuffer;
+  vram: ArrayBuffer;
+};
+
+type EntityHeader = {
+  id: string;
+  name: string;
+  meshOfs: number;
+  tracksOfs: number;
+  controlOfs: number;
+};
+
+type PostMessage = {
+  type: string;
+  mem?: ArrayBuffer;
+  entity?: EntityHeader
+};
+
+export type { SaveState, EntityHeader, PostMessage };
+export { getEntityList };

@@ -20,7 +20,7 @@
 
 const Download = () => {
   const handleClick = () => {
-    window.postMessage("download");
+    window.postMessage({type: "download"});
   };
 
   return (

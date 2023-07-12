@@ -24,8 +24,15 @@ import * as THREE from "three";
 import { OrbitControls } from "@three-ts/orbit-controls";
 import { createSignal, onMount } from "solid-js";
 import { saveAs } from "file-saver";
+import { setAnimationList } from "./viewport/AnimControls";
+import type { EntityHeader, PostMessage } from "@scripts/index";
+import { Entity } from "@scripts/ReadEntity";
 
+const [getRenderer, setRenderer] = createSignal<
+  THREE.WebGLRenderer | undefined
+>();
 const [canvasRef, setCanvasRef] = createSignal<HTMLCanvasElement>();
+const [getScene] = createSignal(new THREE.Scene());
 
 let skelHelper: THREE.SkeletonHelper | null;
 
@@ -36,9 +43,7 @@ type MainMemory = {
   action: THREE.AnimationAction | null;
   clock: THREE.Clock;
   canvas: HTMLCanvasElement | null;
-  renderer: THREE.WebGLRenderer | null;
   camera: THREE.PerspectiveCamera | null;
-  scene: THREE.Scene | null;
 };
 
 const viewer: MainMemory = {
@@ -48,22 +53,21 @@ const viewer: MainMemory = {
   action: null,
   clock: new THREE.Clock(),
   canvas: null,
-  renderer: null,
   camera: null,
-  scene: null,
 };
 
 // State
 
 const resetScene = () => {
-  const { children } = viewer.scene!;
+  const scene = getScene();
+  const { children } = scene;
   children.forEach((child) => {
     switch (child.name) {
       case "grid":
         return;
     }
 
-    viewer.scene!.remove(child);
+    scene.remove(child);
   });
 };
 
@@ -79,7 +83,9 @@ const resetCamera = () => {
 const updateDimensions = () => {
   const width = window.innerWidth - 320;
   const height = window.innerHeight;
-  viewer.renderer!.setSize(width, height);
+
+  const renderer = getRenderer();
+  renderer!.setSize(width, height);
   viewer.camera!.aspect = width / height;
   viewer.camera!.updateProjectionMatrix();
 };
@@ -90,88 +96,99 @@ const animate = () => {
     const delta = viewer.clock.getDelta();
     viewer.mixer.update(delta);
   }
-  viewer.renderer!.render(viewer.scene!, viewer.camera!);
+
+  const renderer = getRenderer();
+  const scene = getScene();
+  renderer!.render(scene, viewer.camera!);
 };
 
-const setEntity = (mesh: THREE.SkinnedMesh) => {
+const setEntity = (mem: ArrayBuffer, entity: EntityHeader) => {
+
+  const reader = new Entity(mem!);
+  const mesh = reader.parseMesh(entity.meshOfs);
+  mesh.name = entity.name;
+
+  if (entity.tracksOfs && entity.controlOfs) {
+    const anims = reader.parseAnimation(entity.tracksOfs, entity.controlOfs);
+    mesh.animations = anims;
+  }
+
   resetScene();
   viewer.mesh = mesh;
   if (mesh.skeleton) {
     skelHelper = new THREE.SkeletonHelper(mesh);
     mesh.add(skelHelper);
   }
+
   if (mesh.animations && mesh.animations.length) {
-    for (let i = 0; i < mesh.animations.length; i++) {
-      const opt = document.createElement("option");
-      opt.value = i.toString();
-      opt.textContent = `anim_${i.toString().padStart(3, "0")}`;
-    }
+    setAnimationList(mesh.animations);
   }
-  viewer.scene!.add(mesh);
+  const scene = getScene();
+  scene.add(mesh);
+};
+
+const handleMessage = async (event: MessageEvent) => {
+  const { data } = event;
+  const message = data as PostMessage;
+
+  switch (message.type) {
+    case "screenshot":
+      takeScreeenshot();
+      break;
+    case "Entity":
+      setEntity(message.mem!, message.entity!);
+      break;
+  }
 };
 
 /**
  *
  * Takes a screenshot of the current viewport and downloads it as a png
- * 
+ *
  * @returns null
  *
  */
 
-
 const takeScreeenshot = async () => {
-
   const mime = "image/png";
-  const url = viewer.renderer!.domElement.toDataURL(mime);
+  const renderer = getRenderer();
+  const url = renderer!.domElement.toDataURL(mime);
   const req = await fetch(url);
   const blob = await req.blob();
   saveAs(blob, "screenshot.png");
-
-}
+};
 
 const Viewport = () => {
   onMount(() => {
     const canvas = canvasRef()!;
     viewer.mount = true;
-    viewer.renderer = new THREE.WebGLRenderer({
+    const renderer = new THREE.WebGLRenderer({
       canvas,
       preserveDrawingBuffer: true,
       antialias: true,
-      alpha : true,
+      alpha: true,
     });
-    viewer.renderer!.setClearColor(new THREE.Color(0), 0);
+    renderer.setClearColor(new THREE.Color(0), 0);
+    setRenderer(renderer);
+
     const aspect = window.innerWidth / window.innerHeight;
     const camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
     viewer.camera = camera;
-    const scene = new THREE.Scene();
-    viewer.scene = scene;
     new OrbitControls(camera, canvas);
 
+    const scene = getScene();
     const grid = new THREE.GridHelper(100, 10);
     grid.name = "grid";
     scene.add(grid);
 
     window.addEventListener("resize", updateDimensions);
+    window.addEventListener("message", handleMessage);
     updateDimensions();
     resetCamera();
     animate();
-
-    window.addEventListener("message",async  (event) => {
-      const { data } = event;
-
-      console.log(data);
-
-      switch(data) {
-        case "screenshot":
-          takeScreeenshot();
-          break;
-      }
-    });
-
   });
 
   return <canvas ref={setCanvasRef} id="canvas"></canvas>;
 };
 
 export default Viewport;
-export { setEntity };
