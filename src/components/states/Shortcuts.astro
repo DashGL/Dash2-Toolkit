@@ -1,0 +1,23 @@
+--- 
+import Screenshot from "./buttons/Screenshot"
+import Reset from "./buttons/Reset"
+import Download from "./buttons/Download"
+import Framebuffer from "./buttons/Framebuffer"
+---
+
+<aside
+    class="hidden lg:block fixed right-0 top-0 bottom-0 z-30 w-16 h-full bg-white border-l border-gray-200 dark:bg-gray-800 dark:border-gray-700 pt-14"
+>
+    <div class="divide-y divide-gray-100 dark:divide-gray-700">
+        <ul class="space-y-2 py-5 px-3">
+            <Screenshot client:visible/>
+            <Reset client:visible/>
+            <Framebuffer client:visible/>
+            { /* <Download client:visible/> */ }
+        </ul>
+
+        <ul class="space-y-2 py-5 px-3">
+            
+        </ul>
+    </div>
+</aside>

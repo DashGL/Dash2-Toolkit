@@ -1,0 +1,21 @@
+---
+
+import SelectState from "./aside/SelectState";
+import AssetList from "./aside/AssetList";
+---
+
+<aside
+    id="sidebar-double"
+    class="flex z-40 fixed top-[3.5rem] left-0 h-full transition-transform -translate-x-full lg:translate-x-0"
+    aria-label="Sidebar"
+>
+    <div
+        id="secondary-sidenav"
+        class="overflow-y-auto py-5 px-3 w-64 h-full bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 transition-transform left-0 top-0 transform-none"
+    >
+
+        <SelectState client:visible />
+        <AssetList client:visible />
+        
+    </div>
+</aside>

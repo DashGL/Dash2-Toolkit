@@ -1,0 +1,51 @@
+---
+import Navbar from "../components/states/Navbar.astro";
+import Aside from "../components/states/Aside.astro";
+import Main from "../components/states/Main";
+import AnimControls from "../components/states/viewport/AnimControls";
+import Shortcuts from "../components/states/Shortcuts.astro";
+---
+
+<html>
+	<head>
+		<meta charset="UTF-8" />
+
+		<link rel="icon" href="/whale.svg" color="#fff" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:site" content="@kion_dgl" />
+		<meta name="twitter:creator" content="@kion_dgl" />
+
+		<meta property="og:title" content="MML2 State Viewer" />
+		<meta
+			property="og:description"
+			content="MML2SaveStateViewer is a tool for visualizing the state of memory in Megaman Legends 2 for the PlayStation(PSX)"
+		/>
+		<meta property="og:url" content="https://mml2.dashgl.com/" />
+		<meta
+			property="og:image"
+			content="https://user-images.githubusercontent.com/25621780/224491317-330eab52-6df5-4588-b006-5858f120564a.png"
+		/>
+
+		<title>MML2 StateViewer</title>
+
+		<script
+			src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.7.0/flowbite.min.js"
+		></script>
+	</head>
+	<body>
+		<div class="bg-gray-50 dark:bg-gray-900 antialiased">
+			<Navbar />
+			<Aside />
+			<main
+				class="bg-gray-50 dark:bg-gray-900 fixed top-[3.5rem]"
+				style="width: calc(100% - 320px); left: 256px; height: calc(100% - 3.5rem);"
+			>
+				<Main client:only />
+				<AnimControls client:only />
+			</main>
+			<Shortcuts />
+		</div>
+	</body>
+</html>
