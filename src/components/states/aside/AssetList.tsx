@@ -43,6 +43,7 @@ const listItem = [
   "transition",
   "duration-75",
   "group",
+  "hover:cursor-pointer",
   "hover:bg-gray-100",
   "dark:text-white",
   "dark:hover:bg-gray-700",
@@ -50,58 +51,51 @@ const listItem = [
 
 const activeListItem = [...listItem, "bg-gray-100", "dark:bg-gray-700"];
 
-const handleEntityClick = (entity: EntityHeader) => {
+const handleEntityClick = (entity: EntityHeader, li: HTMLLIElement) => {
   const mem = memory();
-  setSelected(entity.name)
-  
+  setSelected(entity.name);
+
+  const ul = document.getElementById("entity-list")!;
+  ul.childNodes.forEach( elem => {
+    if(elem.nodeName !== "LI") {
+      return;
+    }
+
+    const item = elem as HTMLLIElement;
+    item.setAttribute("class", listItem.join(" "))
+  });
+
+  li.setAttribute("class", activeListItem.join(" "));
   window.postMessage({
     type: "Entity",
-    mem, 
-    entity, 
-  })
-  
+    mem,
+    entity,
+  });
 };
 
-
 const AssetList = () => {
-
   return (
     <div>
-      <h5 
-      id="state-label"
-      class="text-sm font-medium uppercase text-gray-500 p-2 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
+      <h5
+        id="state-label"
+        class="text-sm font-medium uppercase text-gray-500 p-2 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700"
+      >
         {memName()}
       </h5>
 
-      <ul class="space-y-2">
+      <ul class="space-y-2" id="asset-list">
         <li>
-          <button
-            type="button"
-            class="flex items-center p-2 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-            aria-controls="entity-list"
-            data-collapse-toggle="entity-list"
-          >
-            <span class="flex-1 text-left whitespace-nowrap">Entities</span>
-            <svg
-              aria-hidden="true"
-              class="w-6 h-6"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                clip-rule="evenodd"
-              ></path>
-            </svg>
-          </button>
+          <h3 class="flex items-center p-2 w-full text-base font-medium text-gray-900 rounded-lg group dark:text-white">
+            Entities
+          </h3>
           <ul id="entity-list" class="py-2 space-y-2">
             <For each={entityList()}>
               {(e) => (
                 <li
-                  onClick={() => {
-                    handleEntityClick(e);
+                  onClick={(event: MouseEvent) => {
+                    const { target } = event;
+                    const li = target! as HTMLLIElement;
+                    handleEntityClick(e, li);
                   }}
                   class={
                     selectName() === e.name
@@ -115,7 +109,8 @@ const AssetList = () => {
             </For>
           </ul>
         </li>
-        <li>
+        {/*
+          <li>
           <button
             type="button"
             class="flex items-center p-2 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
@@ -181,6 +176,7 @@ const AssetList = () => {
             </li>
           </ul>
         </li>
+          */}
       </ul>
     </div>
   );
@@ -204,19 +200,21 @@ const scanMemory = (name: string, mem: ArrayBuffer): void => {
   setEntityList(entities);
 
   // Manually re-render because solidjs won't update?
-  
-  const label = document.getElementById("state-label")!
+
+  const label = document.getElementById("state-label")!;
   label.textContent = name;
 
   const eList = document.getElementById("entity-list")!;
-  eList.innerHTML = ""
-  entities.forEach( e => {
+  eList.innerHTML = "";
+  entities.forEach((e) => {
     const li = document.createElement("li");
     li.textContent = e.name;
     li.setAttribute("class", listItem.join(" "));
     eList.appendChild(li);
-    li.addEventListener("click", ()=> {
-      handleEntityClick(e)
+    li.addEventListener("click", (event: MouseEvent) => {
+      const { target } = event;
+      const li = target! as HTMLLIElement;
+      handleEntityClick(e, li);
     });
   });
 };

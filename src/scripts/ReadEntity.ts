@@ -429,7 +429,6 @@ class Entity {
         });
       });
 
-      console.log("reading anim", animIndex);
       const keyframes = keyFrameDict[source];
       for (let i = 0; i < length; i++) {
         const a = this.reader.readUInt8();

@@ -8,7 +8,7 @@
 
 import ByteReader from "bytereader";
 import EntityNames from "../content/EntityNames.json"
-import type { EntityHeader } from "./types"
+import type { EntityHeader } from "./index"
 
 const getEntityList = (mem: ArrayBuffer):EntityHeader[] => {
 	
@@ -29,12 +29,8 @@ const getEntityList = (mem: ArrayBuffer):EntityHeader[] => {
 		const controlOfs = reader.readUInt32()
 		
 		const character = EntityNames.find( entity => {
-			console.log(id)
-			console.log(entity)
 			return entity.id === id;
 		});
-
-		console.log(character);
 
 		const name = character ? character.name : id;
 

@@ -164,20 +164,17 @@ const addSaveState = async (file: File): Promise<void> => {
 
 const setSelectedIndex = async (evt: Event) => {
   // Get the name of the selected Save State
-  console.log("a");
+
   const { target } = evt;
   const t = target as HTMLSelectElement;
   const name = t.value;
 
   // Update the Solidjs Signal for the UI
-  console.log("b");
   setValue(name);
 
   // Get the save state from LocalForage
-  console.log("c");
   const saveState = (await store.getItem(name)) as SaveState;
   const { mem, vram } = saveState;
-  console.log(mem);
   setFramebuffer(vram);
   scanMemory(name, mem);
 };

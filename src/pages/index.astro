@@ -1,42 +1,29 @@
 ---
-import Card from "../components/Card.astro";
+import Navbar from "../components/states/Navbar.astro";
+import Aside from "../components/states/Aside.astro";
+import Main from "../components/states/Main";
+import AnimControls from "../components/states/viewport/AnimControls";
+import Shortcuts from "../components/states/Shortcuts.astro";
 ---
 
-<!DOCTYPE html>
-<html lang="en">
+<html>
 	<head>
-		<meta charset="UTF-8" />
-		<meta name="description" content="Astro description" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Megaman Legends 2</title>
+		<script
+			src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.7.0/flowbite.min.js"
+		></script>
 	</head>
-	<body
-		style="background-image: url('/splash-min.png'); background-size: cover; background-repeat: no-repeat; width: 100vw; height: 100vh;"
-	>
-		<main>
-			<div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
-				<div class="mx-auto max-w-screen-sm text-center lg:mb-16 mb-8">
-					<h2
-						class="mb-4 text-3xl lg:text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white"
-					>
-						Megaman Legends 2
-					</h2>
-					<p
-						class="font-light text-gray-500 sm:text-xl dark:text-gray-400"
-					>
-						A set of tools for working with Megaman Legends 2 save
-						states and file formats
-					</p>
-				</div>
-				<div class="grid gap-8 lg:grid-cols-2">
-					<Card title="Save State Viewer" href="/state" />
-					<Card title="File Analysis" />
-					<Card title="Documentation" />
-					<Card title="Support" />
-				</div>
-			</div>
-		</main>
+	<body>
+		<div class="bg-gray-50 dark:bg-gray-900 antialiased">
+			<Navbar />
+			<Aside />
+			<main
+				class="bg-gray-50 dark:bg-gray-900 fixed top-[3.5rem]"
+				style="width: calc(100% - 320px); left: 256px; height: calc(100% - 3.5rem);"
+			>
+				<Main client:only />
+				<AnimControls client:only/>
+			</main>
+			<Shortcuts />
+		</div>
 	</body>
 </html>

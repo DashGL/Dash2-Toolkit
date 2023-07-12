@@ -36,8 +36,8 @@ const [canvasRef, setCanvasRef] = createSignal<HTMLCanvasElement>();
 const [getScreenshot, setScreenshot] = createSignal(-1);
 
 // States with fixed instances
-const [getScene] = createSignal(new THREE.Scene());
-const [getGrid] = createSignal(new THREE.GridHelper(100, 10));
+const scene = new THREE.Scene();
+const grid = new THREE.GridHelper(100, 10);
 
 let skelHelper: THREE.SkeletonHelper | null;
 
@@ -64,12 +64,11 @@ const viewer: MainMemory = {
 // State
 
 const resetScene = () => {
-  const scene = getScene();
   const { children } = scene;
   children.forEach((child) => {
     scene.remove(child);
   });
-  scene.add(getGrid());
+  scene.add(grid);
 };
 
 // // Functions
@@ -94,13 +93,12 @@ const updateDimensions = () => {
 const animate = () => {
   requestAnimationFrame(animate);
 
-  const scene = getScene();
   if (getScreenshot() === 0) {
-    scene.remove(getGrid());
+    scene.remove(grid);
     setScreenshot(1);
   } else if (getScreenshot() === 1) {
     takeScreeenshot();
-    scene.add(getGrid());
+    scene.add(grid);
     setScreenshot(-1);
   }
 
@@ -114,6 +112,8 @@ const animate = () => {
 };
 
 const setEntity = (mem: ArrayBuffer, entity: EntityHeader) => {
+  resetScene();
+
   const reader = new Entity(mem!);
   const mesh = reader.parseMesh(entity.meshOfs);
   mesh.name = entity.name;
@@ -123,7 +123,6 @@ const setEntity = (mem: ArrayBuffer, entity: EntityHeader) => {
     mesh.animations = anims;
   }
 
-  resetScene();
   viewer.mesh = mesh;
   if (mesh.skeleton) {
     skelHelper = new THREE.SkeletonHelper(mesh);
@@ -133,7 +132,6 @@ const setEntity = (mem: ArrayBuffer, entity: EntityHeader) => {
   if (mesh.animations && mesh.animations.length) {
     setAnimationList(mesh.animations);
   }
-  const scene = getScene();
   scene.add(mesh);
 };
 
@@ -189,9 +187,7 @@ const Viewport = () => {
     const camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
     viewer.camera = camera;
     new OrbitControls(camera, canvas);
-
-    const scene = getScene();
-    scene.add(getGrid());
+    scene.add(grid);
 
     window.addEventListener("resize", updateDimensions);
     window.addEventListener("message", handleMessage);
