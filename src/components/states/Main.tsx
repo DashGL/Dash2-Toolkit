@@ -28,6 +28,8 @@ import { setAnimationList } from "./viewport/AnimControls";
 import type { EntityHeader, PostMessage } from "@scripts/index";
 import { Entity } from "@scripts/ReadEntity";
 
+import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
+
 const [getRenderer, setRenderer] = createSignal<
   THREE.WebGLRenderer | undefined
 >();
@@ -157,6 +159,36 @@ const setAnimation = (index: number) => {
   viewer.mixer = mixer;
 };
 
+const handleDownload = () => {
+  
+  if(!viewer.mesh) {
+    return;
+  }
+  
+  const { mesh } = viewer;
+  const anims = mesh.animations || [];
+ 
+  const exporter = new GLTFExporter();
+  const opt = {
+    binary: false,
+    animations: anims,
+  };
+
+  exporter.parse(
+    mesh,
+    (result) => {
+      const mime = { type: "application/octet-stream" };
+      const str = JSON.stringify(result, null, 2);
+      const blob = new Blob([str], mime);
+      saveAs(blob, `${mesh.name}.gltf`);
+    },
+    (error) => {
+      throw error;
+    },
+    opt
+  );
+};
+
 const handleMessage = async (event: MessageEvent) => {
   const { data } = event;
   const message = data as PostMessage;
@@ -175,10 +207,13 @@ const handleMessage = async (event: MessageEvent) => {
       setAnimation(message.index!);
       break;
     case "Play":
-      viewer.action && (viewer.action.play());
+      viewer.action && viewer.action.play();
       break;
     case "Pause":
       viewer.action && (viewer.action.paused = true);
+      break;
+    case "Download":
+      handleDownload();
       break;
   }
 };

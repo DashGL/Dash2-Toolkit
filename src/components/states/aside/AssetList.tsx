@@ -56,13 +56,13 @@ const handleEntityClick = (entity: EntityHeader, li: HTMLLIElement) => {
   setSelected(entity.name);
 
   const ul = document.getElementById("entity-list")!;
-  ul.childNodes.forEach( elem => {
-    if(elem.nodeName !== "LI") {
+  ul.childNodes.forEach((elem) => {
+    if (elem.nodeName !== "LI") {
       return;
     }
 
     const item = elem as HTMLLIElement;
-    item.setAttribute("class", listItem.join(" "))
+    item.setAttribute("class", listItem.join(" "));
   });
 
   li.setAttribute("class", activeListItem.join(" "));
@@ -76,16 +76,9 @@ const handleEntityClick = (entity: EntityHeader, li: HTMLLIElement) => {
 const AssetList = () => {
   return (
     <div>
-      <h5
-        id="state-label"
-        class="text-sm font-medium uppercase text-gray-500 p-2 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700"
-      >
-        {memName()}
-      </h5>
-
       <ul class="space-y-2" id="asset-list">
         <li>
-          <h3 class="flex items-center p-2 w-full text-base font-medium text-gray-900 rounded-lg group dark:text-white">
+          <h3 class="flex items-center p-2 w-full text-base font-medium text-gray-900 rounded-lg group dark:text-white uppercase border-b border-gray-200 dark:border-gray-700">
             Entities
           </h3>
           <ul id="entity-list" class="py-2 space-y-2">
@@ -200,9 +193,6 @@ const scanMemory = (name: string, mem: ArrayBuffer): void => {
   setEntityList(entities);
 
   // Manually re-render because solidjs won't update?
-
-  const label = document.getElementById("state-label")!;
-  label.textContent = name;
 
   const eList = document.getElementById("entity-list")!;
   eList.innerHTML = "";
