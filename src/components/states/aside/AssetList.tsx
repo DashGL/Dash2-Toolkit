@@ -21,7 +21,6 @@
 import { For, createSignal, onMount } from "solid-js";
 import { getEntityList } from "@scripts/index";
 import type { EntityHeader } from "@scripts/index";
-import { Entity } from "@scripts/ReadEntity";
 
 const [memName, setMemName] = createSignal("Save State");
 const [selectName, setSelected] = createSignal("");
@@ -210,4 +209,4 @@ const scanMemory = (name: string, mem: ArrayBuffer): void => {
 };
 
 export default AssetList;
-export { scanMemory };
+export { memName, memory, scanMemory };
