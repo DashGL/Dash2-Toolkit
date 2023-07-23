@@ -25,10 +25,17 @@ import { OrbitControls } from "@three-ts/orbit-controls";
 import { createSignal, onMount } from "solid-js";
 import { saveAs } from "file-saver";
 import { setAnimationList } from "./viewport/AnimControls";
-import type { EntityHeader, PostMessage } from "@scripts/index";
+import type { EntityHeader, PostMessage, SaveState } from "@scripts/index";
 import { Entity } from "@scripts/ReadEntity";
+import localForage from "localforage";
+
+const store = localForage.createInstance({
+  name: "MML2-StateViewer",
+});
+
 
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
+import { Player } from "@scripts/ReadPlayer";
 
 const [getRenderer, setRenderer] = createSignal<
   THREE.WebGLRenderer | undefined
@@ -66,6 +73,11 @@ const viewer: MainMemory = {
 // State
 
 const resetScene = () => {
+
+  if (viewer.mesh) {
+    scene.remove(viewer.mesh);
+  }
+
   const { children } = scene;
   children.forEach((child) => {
     scene.remove(child);
@@ -112,6 +124,32 @@ const animate = () => {
   const renderer = getRenderer();
   renderer!.render(scene, viewer.camera!);
 };
+
+const setPlayer = async () => {
+  resetScene();
+
+  const name = localStorage.getItem("name");
+  if (!name) {
+    return;
+  }
+
+  const saveState = (await store.getItem(name)) as SaveState;
+  const { mem } = saveState;
+
+  const player = new Player(mem);
+  const list = player.parseMesh();
+
+  for (let i = 0; i < list.length; i++) {
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const cube = new THREE.Mesh(geometry, material);
+    cube.position.x = list[i].x;
+    cube.position.y = list[i].y;
+    cube.position.z = list[i].z;
+    scene.add(cube);
+  }
+
+}
 
 const setEntity = (mem: ArrayBuffer, entity: EntityHeader) => {
   resetScene();
@@ -160,14 +198,14 @@ const setAnimation = (index: number) => {
 };
 
 const handleDownload = () => {
-  
-  if(!viewer.mesh) {
+
+  if (!viewer.mesh) {
     return;
   }
-  
+
   const { mesh } = viewer;
   const anims = mesh.animations || [];
- 
+
   const exporter = new GLTFExporter();
   const opt = {
     binary: false,
@@ -199,6 +237,9 @@ const handleMessage = async (event: MessageEvent) => {
       break;
     case "Entity":
       setEntity(message.mem!, message.entity!);
+      break;
+    case "Player":
+      setPlayer();
       break;
     case "reset":
       resetCamera();

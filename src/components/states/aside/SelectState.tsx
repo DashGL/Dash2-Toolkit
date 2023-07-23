@@ -1,26 +1,26 @@
 /*
 
-	Copyright (C) 2023 DashGL - Benjamin Collins
-	This file is part of MML2 StateViewer
+  Copyright (C) 2023 DashGL - Benjamin Collins
+  This file is part of MML2 StateViewer
 
-	MML2 StateViewer is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+  MML2 StateViewer is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-	MML2 StateViewer is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+  MML2 StateViewer is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with MML2 StateViewer. If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with MML2 StateViewer. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
 import type { SaveState } from "@scripts/index";
 import localForage from "localforage";
-import { For, createSignal } from "solid-js";
+import { For, createSignal, onMount } from "solid-js";
 import { scanMemory } from "./AssetList";
 import pako from "pako";
 import { setFramebuffer } from "@scripts/Framebuffer";
@@ -171,6 +171,7 @@ const setSelectedIndex = async (evt: Event) => {
 
   // Update the Solidjs Signal for the UI
   setValue(name);
+  localStorage.setItem("name", name);
 
   // Get the save state from LocalForage
   const saveState = (await store.getItem(name)) as SaveState;
@@ -180,6 +181,23 @@ const setSelectedIndex = async (evt: Event) => {
 };
 
 const StateSelect = () => {
+
+  onMount(async () => {
+    const name = localStorage.getItem("name");
+    if (!name) {
+      return;
+    }
+
+    // Update the Solidjs Signal for the UI
+    setValue(name);
+
+    // Get the save state from LocalForage
+    const saveState = (await store.getItem(name)) as SaveState;
+    const { mem, vram } = saveState;
+    setFramebuffer(vram);
+    scanMemory(name, mem);
+  })
+
   return (
     <select
       onChange={setSelectedIndex}
