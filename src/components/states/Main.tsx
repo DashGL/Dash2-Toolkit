@@ -137,17 +137,9 @@ const setPlayer = async () => {
   const { mem } = saveState;
 
   const player = new Player(mem);
-  const list = player.parseMesh();
-
-  for (let i = 0; i < list.length; i++) {
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const cube = new THREE.Mesh(geometry, material);
-    cube.position.x = list[i].x;
-    cube.position.y = list[i].y;
-    cube.position.z = list[i].z;
-    scene.add(cube);
-  }
+  const mesh = player.parseMesh();
+  viewer.mesh = mesh;
+  scene.add(mesh);
 
 }
 
