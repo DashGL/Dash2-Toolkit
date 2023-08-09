@@ -50,8 +50,15 @@ type FaceIndex = {
     v: number;
 };
 
+type DrawCall = {
+    start: number;
+    count: number;
+    materialIndex: number;
+};
+
 const PLAYER_OFFSET = 0x110800
-const SCALE = 0.00125;
+// const SCALE = 0.00125;
+const SCALE = 0.0009;
 const ROT = new Matrix4();
 ROT.makeRotationX(Math.PI);
 
@@ -71,16 +78,26 @@ class Player {
         this.readBones();
 
         // Prepare Textures
-        const texture = new TextureLoader().load('/mx-1.png');
-        texture.flipY = false;
-        texture.needsUpdate = true;
+        const a = new TextureLoader().load('/mx-0.png')
+        a.flipY = false;
+        a.needsUpdate = true;
 
-        const mat = new MeshBasicMaterial({ map: texture });
+        const b = new TextureLoader().load('/mx-1.png');
+        b.flipY = false;
+        b.needsUpdate = true;
+
+        setTimeout( () => {
+            a.needsUpdate = true;
+            b.needsUpdate = true;
+        }, 500)
+
+        const mats = [new MeshBasicMaterial({ map: a }), new MeshBasicMaterial({ map: b })]
         this.readHead();
-
+        this.readBody();
+        // this.readFoot();
 
         const geometry = this.createBufferGeometry();
-        const mesh = new SkinnedMesh(geometry, mat);
+        const mesh = new SkinnedMesh(geometry, mats);
         const skeleton = new Skeleton(this.bones);
 
         const rootBone = skeleton.bones[0];
@@ -95,6 +112,7 @@ class Player {
         const startOfs = HEAD_OFFSET - PLAYER_OFFSET;
         const submeshCount = 3;
         const boneIndex = 1;
+        const matIndex = 1;
 
         this.reader.seek(startOfs);
         for (let i = 0; i < submeshCount; i++) {
@@ -114,13 +132,52 @@ class Player {
             this.reader.seek(vertOfs);
             const verts = this.readVertex(vertCount, boneIndex)
             this.reader.seek(triOfs);
-            this.readFace(triCount, false, verts, boneIndex);
+            this.readFace(triCount, false, verts, boneIndex, matIndex);
 
             this.reader.seek(quadOfs);
-            this.readFace(quadCount, true, verts, boneIndex);
+            this.readFace(quadCount, true, verts, boneIndex, matIndex);
 
             this.reader.seek(save);
         }
+
+    }
+
+    readBody() {
+        const BODY_OFFSET = 0x110880;
+        const startOfs = BODY_OFFSET - PLAYER_OFFSET;
+        const submeshCount = 1;
+        const boneIndex = 0;
+        const matIndex = 0;
+
+        this.reader.seek(startOfs);
+        for (let i = 0; i < submeshCount; i++) {
+            console.log(this.reader.tellf())
+            const triCount = this.reader.readUInt8();
+            const quadCount = this.reader.readUInt8();
+            const vertCount = this.reader.readUInt8();
+            this.reader.seekRel(1);
+
+            const triOfs = this.reader.readUInt32();
+            const quadOfs = this.reader.readUInt32();
+            const vertOfs = this.reader.readUInt32();
+            this.reader.seekRel(8);
+
+            const save = this.reader.tell();
+
+            this.reader.seek(vertOfs);
+            const verts = this.readVertex(vertCount, boneIndex)
+            this.reader.seek(triOfs);
+            this.readFace(triCount, false, verts, boneIndex, matIndex);
+
+            this.reader.seek(quadOfs);
+            this.readFace(quadCount, true, verts, boneIndex, matIndex);
+
+            this.reader.seek(save);
+        }
+
+    }
+
+    readFoot() {
 
     }
 
@@ -164,7 +221,7 @@ class Player {
         return localIndices;
     }
 
-    readFace(faceCount: number, isQuad: boolean, localIndices: Vector3[], boneIndex: number) {
+    readFace(faceCount: number, isQuad: boolean, localIndices: Vector3[], boneIndex: number, materialIndex: number) {
         const FACE_MASK = 0b1111111;
         const PIXEL_TO_FLOAT_RATIO = 0.00390625;
         const PIXEL_ADJUSTMEST = 0.001953125;
@@ -180,7 +237,7 @@ class Player {
             const dv = this.reader.readUInt8();
 
             const dword = this.reader.readUInt32();
-            const materialIndex = (dword >> 28) & 0x3;
+            // const materialIndex = (dword >> 28) & 0x3;
 
             const indexA = (dword >> 0x00) & FACE_MASK;
             const indexB = (dword >> 0x07) & FACE_MASK;
@@ -248,14 +305,38 @@ class Player {
         const uvs: number[] = [];
         const skinIndices: number[] = [];
         const skinWeights: number[] = [];
+        const drawCalls: DrawCall[] = [];
 
         this.faces.forEach((face, index) => {
             const { x, y, z, u, v, boneIndex, materialIndex } = face;
+            console.log(materialIndex)
             pos.push(x, y, z);
             uvs.push(u, v);
             skinIndices.push(boneIndex, 0, 0, 0);
             skinWeights.push(1, 0, 0, 0);
+
+            if (!drawCalls.length) {
+                drawCalls.push({
+                    start: 0,
+                    count: 1,
+                    materialIndex,
+                });
+            } else {
+                const group = drawCalls[drawCalls.length - 1];
+                if (group.materialIndex === materialIndex) {
+                    group.count++;
+                } else {
+                    drawCalls.push({
+                        start: index,
+                        count: 1,
+                        materialIndex,
+                    });
+                }
+            }
+
         });
+
+        console.log(drawCalls);
 
         geometry.setAttribute("position", new Float32BufferAttribute(pos, 3));
         geometry.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
@@ -268,6 +349,9 @@ class Player {
             new Float32BufferAttribute(skinWeights, 4)
         );
         geometry.computeVertexNormals();
+        drawCalls.forEach(({ start, count, materialIndex }) => {
+            geometry.addGroup(start, count, materialIndex);
+        });
 
         return geometry;
     }
