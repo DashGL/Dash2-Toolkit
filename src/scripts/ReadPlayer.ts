@@ -59,6 +59,7 @@ ROT.makeRotationX(Math.PI);
 class Player {
     private reader: ByteReader;
     private faces: FaceIndex[] = [];
+    private bones: Bone[] = []
 
     constructor(mem: ArrayBuffer) {
         const pbdData = mem.slice(PLAYER_OFFSET)
@@ -66,6 +67,10 @@ class Player {
     }
 
     parseMesh() {
+        // Prepare Skeleton
+        this.readBones();
+
+        // Prepare Textures
         const texture = new TextureLoader().load('/mx-1.png');
         texture.flipY = false;
         texture.needsUpdate = true;
@@ -73,8 +78,15 @@ class Player {
         const mat = new MeshBasicMaterial({ map: texture });
         this.readHead();
 
+
         const geometry = this.createBufferGeometry();
-        const mesh = new Mesh(geometry, mat);
+        const mesh = new SkinnedMesh(geometry, mat);
+        const skeleton = new Skeleton(this.bones);
+
+        const rootBone = skeleton.bones[0];
+        mesh.add(rootBone);
+        mesh.bind(skeleton);
+
         return mesh
     }
 
@@ -82,6 +94,7 @@ class Player {
         const HEAD_OFFSET = 0x111360
         const startOfs = HEAD_OFFSET - PLAYER_OFFSET;
         const submeshCount = 3;
+        const boneIndex = 1;
 
         this.reader.seek(startOfs);
         for (let i = 0; i < submeshCount; i++) {
@@ -99,13 +112,12 @@ class Player {
             const save = this.reader.tell();
 
             this.reader.seek(vertOfs);
-            const verts = this.readVertex(vertCount);
-
+            const verts = this.readVertex(vertCount, boneIndex)
             this.reader.seek(triOfs);
-            this.readFace(triCount, false, verts);
+            this.readFace(triCount, false, verts, boneIndex);
 
             this.reader.seek(quadOfs);
-            this.readFace(quadCount, true, verts);
+            this.readFace(quadCount, true, verts, boneIndex);
 
             this.reader.seek(save);
         }
@@ -113,12 +125,14 @@ class Player {
     }
 
     readVertex(
-        vertexCount: number
+        vertexCount: number,
+        boneIndex: number
     ) {
         const VERTEX_MASK = 0b1111111111;
         const VERTEX_MSB = 0b1000000000;
         const VERTEX_LOW = 0b0111111111;
         const localIndices: Vector3[] = [];
+        const bone = this.bones[boneIndex]
 
         for (let i = 0; i < vertexCount; i++) {
             const dword = this.reader.readUInt32();
@@ -142,6 +156,7 @@ class Player {
             );
             vec3.multiplyScalar(SCALE);
             vec3.applyMatrix4(ROT);
+            vec3.applyMatrix4(bone.matrixWorld);
 
             localIndices.push(vec3);
         }
@@ -149,7 +164,7 @@ class Player {
         return localIndices;
     }
 
-    readFace(faceCount: number, isQuad: boolean, localIndices: Vector3[]) {
+    readFace(faceCount: number, isQuad: boolean, localIndices: Vector3[], boneIndex: number) {
         const FACE_MASK = 0b1111111;
         const PIXEL_TO_FLOAT_RATIO = 0.00390625;
         const PIXEL_ADJUSTMEST = 0.001953125;
@@ -179,7 +194,7 @@ class Player {
 
             const a: FaceIndex = {
                 materialIndex,
-                boneIndex: -1,
+                boneIndex,
                 x: localIndices[indexA].x,
                 y: localIndices[indexA].y,
                 z: localIndices[indexA].z,
@@ -189,7 +204,7 @@ class Player {
 
             const b: FaceIndex = {
                 materialIndex,
-                boneIndex: -1,
+                boneIndex,
                 x: localIndices[indexB].x,
                 y: localIndices[indexB].y,
                 z: localIndices[indexB].z,
@@ -199,7 +214,7 @@ class Player {
 
             const c: FaceIndex = {
                 materialIndex,
-                boneIndex: -1,
+                boneIndex,
                 x: localIndices[indexC].x,
                 y: localIndices[indexC].y,
                 z: localIndices[indexC].z,
@@ -209,7 +224,7 @@ class Player {
 
             const d: FaceIndex = {
                 materialIndex,
-                boneIndex: -1,
+                boneIndex,
                 x: localIndices[indexD].x,
                 y: localIndices[indexD].y,
                 z: localIndices[indexD].z,
@@ -231,19 +246,197 @@ class Player {
         const geometry = new BufferGeometry();
         const pos: number[] = [];
         const uvs: number[] = [];
+        const skinIndices: number[] = [];
+        const skinWeights: number[] = [];
 
         this.faces.forEach((face, index) => {
             const { x, y, z, u, v, boneIndex, materialIndex } = face;
             pos.push(x, y, z);
             uvs.push(u, v);
+            skinIndices.push(boneIndex, 0, 0, 0);
+            skinWeights.push(1, 0, 0, 0);
         });
 
         geometry.setAttribute("position", new Float32BufferAttribute(pos, 3));
         geometry.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+        geometry.setAttribute(
+            "skinIndex",
+            new Uint16BufferAttribute(skinIndices, 4)
+        );
+        geometry.setAttribute(
+            "skinWeight",
+            new Float32BufferAttribute(skinWeights, 4)
+        );
         geometry.computeVertexNormals();
 
         return geometry;
     }
+
+    readBones() {
+
+        const boneSrc = [{
+            "pos": {
+                "x": 0,
+                "y": 0.90625,
+                "z": -1.1098361617272889e-16
+            },
+            "name": "bone_000",
+            "parent": -1
+        },
+        {
+            "pos": {
+                "x": 0,
+                "y": 0.2575,
+                "z": -3.153465507804434e-17
+            },
+            "name": "bone_001",
+            "parent": 0
+        },
+        {
+            "pos": {
+                "x": -0.17500000000000002,
+                "y": 0.1625,
+                "z": -0.01250000000000002
+            },
+            "name": "bone_002",
+            "parent": 0
+        },
+        {
+            "pos": {
+                "x": -0.025,
+                "y": -0.2,
+                "z": 2.4492935982947065e-17
+            },
+            "name": "bone_003",
+            "parent": 2
+        },
+        {
+            "pos": {
+                "x": 0,
+                "y": -0.1525,
+                "z": 1.8675863686997135e-17
+            },
+            "name": "bone_004",
+            "parent": 3
+        },
+        {
+            "pos": {
+                "x": 0.17500000000000002,
+                "y": 0.1625,
+                "z": -0.01250000000000002
+            },
+            "name": "bone_005",
+            "parent": 0
+        },
+        {
+            "pos": {
+                "x": 0.025,
+                "y": -0.2,
+                "z": 2.4492935982947065e-17
+            },
+            "name": "bone_006",
+            "parent": 5
+        },
+        {
+            "pos": {
+                "x": 0,
+                "y": -0.1525,
+                "z": 1.8675863686997135e-17
+            },
+            "name": "bone_007",
+            "parent": 6
+        },
+        {
+            "pos": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "name": "bone_008",
+            "parent": 0
+        },
+        {
+            "pos": {
+                "x": -0.08125,
+                "y": -0.09125,
+                "z": 1.1174902042219598e-17
+            },
+            "name": "bone_009",
+            "parent": 8
+        },
+        {
+            "pos": {
+                "x": 0,
+                "y": -0.28125,
+                "z": 3.444319122601931e-17
+            },
+            "name": "bone_010",
+            "parent": 9
+        },
+        {
+            "pos": {
+                "x": 0,
+                "y": -0.34875,
+                "z": 4.2709557120263944e-17
+            },
+            "name": "bone_011",
+            "parent": 10
+        },
+        {
+            "pos": {
+                "x": 0.08125,
+                "y": -0.09125,
+                "z": 1.1174902042219598e-17
+            },
+            "name": "bone_012",
+            "parent": 8
+        },
+        {
+            "pos": {
+                "x": 0,
+                "y": -0.28125,
+                "z": 3.444319122601931e-17
+            },
+            "name": "bone_013",
+            "parent": 12
+        },
+        {
+            "pos": {
+                "x": 0,
+                "y": -0.34875,
+                "z": 4.2709557120263944e-17
+            },
+            "name": "bone_014",
+            "parent": 13
+        }
+        ];
+
+        boneSrc.forEach(src => {
+
+            const bone = new Bone();
+
+            bone.position.x = src.pos.x;
+            bone.position.y = src.pos.y;
+            bone.position.z = src.pos.z;
+            bone.name = src.name;
+
+            if (this.bones[src.parent]) {
+                this.bones[src.parent].add(bone);
+            }
+
+            this.bones.push(bone);
+
+        });
+
+        this.bones.forEach(bone => {
+            bone.updateMatrix();
+            bone.updateMatrixWorld();
+        });
+
+
+    }
+
+
 }
 
 export { Player };

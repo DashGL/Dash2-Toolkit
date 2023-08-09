@@ -138,7 +138,17 @@ const setPlayer = async () => {
 
   const player = new Player(mem);
   const mesh = player.parseMesh();
+  mesh.name = "Megaman";
+
   viewer.mesh = mesh;
+  if (mesh.skeleton) {
+    skelHelper = new THREE.SkeletonHelper(mesh);
+    mesh.add(skelHelper);
+  }
+
+  if (mesh.animations && mesh.animations.length) {
+    setAnimationList(mesh.animations);
+  }
   scene.add(mesh);
 
 }
