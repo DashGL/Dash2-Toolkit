@@ -34,6 +34,7 @@ import {
     AnimationClip,
     MeshNormalMaterial,
     Mesh,
+    TextureLoader,
 } from "three";
 
 import { renderTexture } from "./Framebuffer";
@@ -49,50 +50,66 @@ type FaceIndex = {
     v: number;
 };
 
+const PLAYER_OFFSET = 0x110800
 const SCALE = 0.00125;
 const ROT = new Matrix4();
 ROT.makeRotationX(Math.PI);
+
 
 class Player {
     private reader: ByteReader;
     private faces: FaceIndex[] = [];
 
     constructor(mem: ArrayBuffer) {
-        const PLAYER_OFFSET = 0x110800
         const pbdData = mem.slice(PLAYER_OFFSET)
         this.reader = new ByteReader(pbdData);
     }
 
     parseMesh() {
+        const texture = new TextureLoader().load('/mx-1.png');
+        texture.flipY = false;
+        texture.needsUpdate = true;
+
+        const mat = new MeshBasicMaterial({ map: texture });
         this.readHead();
 
         const geometry = this.createBufferGeometry();
-        const mat = new MeshNormalMaterial();
         const mesh = new Mesh(geometry, mat);
         return mesh
     }
 
     readHead() {
-        const startOfs = 0x111360 - 0x110800;
+        const HEAD_OFFSET = 0x111360
+        const startOfs = HEAD_OFFSET - PLAYER_OFFSET;
+        const submeshCount = 3;
+
         this.reader.seek(startOfs);
+        for (let i = 0; i < submeshCount; i++) {
+            console.log(this.reader.tellf())
+            const triCount = this.reader.readUInt8();
+            const quadCount = this.reader.readUInt8();
+            const vertCount = this.reader.readUInt8();
+            this.reader.seekRel(1);
 
-        const triCount = this.reader.readUInt8();
-        const quadCount = this.reader.readUInt8();
-        const vertCount = this.reader.readUInt8();
-        const nop = this.reader.readUInt8();
+            const triOfs = this.reader.readUInt32();
+            const quadOfs = this.reader.readUInt32();
+            const vertOfs = this.reader.readUInt32();
+            this.reader.seekRel(8);
 
-        const triOfs = this.reader.readUInt32();
-        const quadOfs = this.reader.readUInt32();
-        const vertOfs = this.reader.readUInt32();
+            const save = this.reader.tell();
 
-        this.reader.seek(vertOfs);
-        const verts = this.readVertex(vertCount);
+            this.reader.seek(vertOfs);
+            const verts = this.readVertex(vertCount);
 
-        this.reader.seek(triOfs);
-        this.readFace(triCount, false, verts);
+            this.reader.seek(triOfs);
+            this.readFace(triCount, false, verts);
 
-        this.reader.seek(quadOfs);
-        this.readFace(quadCount, true, verts);
+            this.reader.seek(quadOfs);
+            this.readFace(quadCount, true, verts);
+
+            this.reader.seek(save);
+        }
+
     }
 
     readVertex(
@@ -155,6 +172,11 @@ class Player {
             const indexC = (dword >> 0x0e) & FACE_MASK;
             const indexD = (dword >> 0x15) & FACE_MASK;
 
+            if (!localIndices[indexA]) {
+                console.log(indexA);
+                console.log(localIndices.length);
+            }
+
             const a: FaceIndex = {
                 materialIndex,
                 boneIndex: -1,
@@ -208,13 +230,16 @@ class Player {
     createBufferGeometry() {
         const geometry = new BufferGeometry();
         const pos: number[] = [];
+        const uvs: number[] = [];
 
         this.faces.forEach((face, index) => {
             const { x, y, z, u, v, boneIndex, materialIndex } = face;
             pos.push(x, y, z);
+            uvs.push(u, v);
         });
 
         geometry.setAttribute("position", new Float32BufferAttribute(pos, 3));
+        geometry.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
         geometry.computeVertexNormals();
 
         return geometry;
