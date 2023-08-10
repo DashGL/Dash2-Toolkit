@@ -86,7 +86,7 @@ class Player {
         b.flipY = false;
         b.needsUpdate = true;
 
-        setTimeout( () => {
+        setTimeout(() => {
             a.needsUpdate = true;
             b.needsUpdate = true;
         }, 500)
@@ -94,7 +94,9 @@ class Player {
         const mats = [new MeshBasicMaterial({ map: a }), new MeshBasicMaterial({ map: b })]
         this.readHead();
         this.readBody();
-        // this.readFoot();
+        this.readLeftArm();
+        this.readSpecialWeapon();
+        this.readFoot();
 
         const geometry = this.createBufferGeometry();
         const mesh = new SkinnedMesh(geometry, mats);
@@ -145,12 +147,11 @@ class Player {
     readBody() {
         const BODY_OFFSET = 0x110880;
         const startOfs = BODY_OFFSET - PLAYER_OFFSET;
-        const submeshCount = 1;
-        const boneIndex = 0;
+        const boneIndex = [0, 8, 9, 10, 12, 13];
         const matIndex = 0;
 
         this.reader.seek(startOfs);
-        for (let i = 0; i < submeshCount; i++) {
+        for (let i = 0; i < boneIndex.length; i++) {
             console.log(this.reader.tellf())
             const triCount = this.reader.readUInt8();
             const quadCount = this.reader.readUInt8();
@@ -163,22 +164,110 @@ class Player {
             this.reader.seekRel(8);
 
             const save = this.reader.tell();
-
             this.reader.seek(vertOfs);
-            const verts = this.readVertex(vertCount, boneIndex)
+            const verts = this.readVertex(vertCount, boneIndex[i])
             this.reader.seek(triOfs);
-            this.readFace(triCount, false, verts, boneIndex, matIndex);
+            this.readFace(triCount, false, verts, boneIndex[i], matIndex);
 
             this.reader.seek(quadOfs);
-            this.readFace(quadCount, true, verts, boneIndex, matIndex);
+            this.readFace(quadCount, true, verts, boneIndex[i], matIndex);
 
             this.reader.seek(save);
         }
 
     }
 
-    readFoot() {
+    readLeftArm() {
+        const ARM_OFFSET = 0x112a20;
+        const startOfs = ARM_OFFSET - PLAYER_OFFSET;
+        const boneIndex = [2, 3];
+        const matIndex = 0;
 
+        this.reader.seek(startOfs);
+        for (let i = 0; i < boneIndex.length; i++) {
+            const triCount = this.reader.readUInt8();
+            const quadCount = this.reader.readUInt8();
+            const vertCount = this.reader.readUInt8();
+            this.reader.seekRel(1);
+
+            const triOfs = this.reader.readUInt32();
+            const quadOfs = this.reader.readUInt32();
+            const vertOfs = this.reader.readUInt32();
+            this.reader.seekRel(8);
+
+            const save = this.reader.tell();
+            this.reader.seek(vertOfs);
+            const verts = this.readVertex(vertCount, boneIndex[i])
+            this.reader.seek(triOfs);
+            this.readFace(triCount, false, verts, boneIndex[i], matIndex);
+
+            this.reader.seek(quadOfs);
+            this.readFace(quadCount, true, verts, boneIndex[i], matIndex);
+
+            this.reader.seek(save);
+        }
+    }
+
+    readFoot() {
+        const FOOT_OFFSET = 0x112000;
+        const startOfs = FOOT_OFFSET - PLAYER_OFFSET;
+        const boneIndex = [11, 14];
+        const matIndex = 0;
+
+        this.reader.seek(startOfs);
+        for (let i = 0; i < boneIndex.length; i++) {
+            const triCount = this.reader.readUInt8();
+            const quadCount = this.reader.readUInt8();
+            const vertCount = this.reader.readUInt8();
+            this.reader.seekRel(1);
+
+            const triOfs = this.reader.readUInt32();
+            const quadOfs = this.reader.readUInt32();
+            const vertOfs = this.reader.readUInt32();
+            this.reader.seekRel(8);
+
+            const save = this.reader.tell();
+            this.reader.seek(vertOfs);
+            const verts = this.readVertex(vertCount, boneIndex[i])
+            this.reader.seek(triOfs);
+            this.readFace(triCount, false, verts, boneIndex[i], matIndex);
+
+            this.reader.seek(quadOfs);
+            this.readFace(quadCount, true, verts, boneIndex[i], matIndex);
+
+            this.reader.seek(save);
+        }
+    }
+
+    readSpecialWeapon() {
+        const ARM_OFFSET = 0x0113340;
+        const startOfs = ARM_OFFSET - PLAYER_OFFSET;
+        const boneIndex = [5, 6];
+        const matIndex = [0, 1];
+
+        this.reader.seek(startOfs);
+        for (let i = 0; i < boneIndex.length; i++) {
+            const triCount = this.reader.readUInt8();
+            const quadCount = this.reader.readUInt8();
+            const vertCount = this.reader.readUInt8();
+            this.reader.seekRel(1);
+
+            const triOfs = this.reader.readUInt32();
+            const quadOfs = this.reader.readUInt32();
+            const vertOfs = this.reader.readUInt32();
+            this.reader.seekRel(8);
+
+            const save = this.reader.tell();
+            this.reader.seek(vertOfs);
+            const verts = this.readVertex(vertCount, boneIndex[i])
+            this.reader.seek(triOfs);
+            this.readFace(triCount, false, verts, boneIndex[i], matIndex[i]);
+
+            this.reader.seek(quadOfs);
+            this.readFace(quadCount, true, verts, boneIndex[i], matIndex[i]);
+
+            this.reader.seek(save);
+        }
     }
 
     readVertex(
