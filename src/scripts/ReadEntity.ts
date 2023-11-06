@@ -94,8 +94,8 @@ class Entity {
 
   constructor(mem: ArrayBuffer) {
     const ENTITY_OFFSET = 0x124800
-	const ebdData = mem.slice(ENTITY_OFFSET)
-	this.reader = new ByteReader(ebdData);
+    const ebdData = mem.slice(ENTITY_OFFSET)
+    this.reader = new ByteReader(ebdData);
   }
 
   parseMesh(meshOfs: number) {
@@ -473,13 +473,13 @@ class Entity {
 
     const haystack = bone.parent
       ? this.vertices
-          .filter((v) => {
-            return v.boneIndex === boneParent;
-          })
-          .map((v) => {
-            const { x, y, z } = v.pos;
-            return [x.toFixed(2), y.toFixed(2), z.toFixed(2)].join(",");
-          })
+        .filter((v) => {
+          return v.boneIndex === boneParent;
+        })
+        .map((v) => {
+          const { x, y, z } = v.pos;
+          return [x.toFixed(2), y.toFixed(2), z.toFixed(2)].join(",");
+        })
       : [];
 
     for (let i = 0; i < vertexCount; i++) {

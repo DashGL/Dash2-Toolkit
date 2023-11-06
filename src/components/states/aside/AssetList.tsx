@@ -1,20 +1,20 @@
 /*
 
-	Copyright (C) 2023 DashGL - Benjamin Collins
-	This file is part of MML2 StateViewer
+  Copyright (C) 2023 DashGL - Benjamin Collins
+  This file is part of MML2 StateViewer
 
-	MML2 StateViewer is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+  MML2 StateViewer is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-	MML2 StateViewer is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+  MML2 StateViewer is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
  
-	You should have received a copy of the GNU General Public License
-	along with MML2 StateViewer. If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with MML2 StateViewer. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -50,12 +50,9 @@ const listItem = [
 
 const activeListItem = [...listItem, "bg-gray-100", "dark:bg-gray-700"];
 
-const handleEntityClick = (entity: EntityHeader, li: HTMLLIElement) => {
-  const mem = memory();
-  setSelected(entity.name);
+const resetActiveListItem = () => {
 
-  const ul = document.getElementById("entity-list")!;
-  ul.childNodes.forEach((elem) => {
+  document.getElementById("entity-list")!.childNodes.forEach((elem) => {
     if (elem.nodeName !== "LI") {
       return;
     }
@@ -63,6 +60,22 @@ const handleEntityClick = (entity: EntityHeader, li: HTMLLIElement) => {
     const item = elem as HTMLLIElement;
     item.setAttribute("class", listItem.join(" "));
   });
+
+  document.getElementById("player-list")!.childNodes.forEach((elem) => {
+    if (elem.nodeName !== "LI") {
+      return;
+    }
+
+    const item = elem as HTMLLIElement;
+    item.setAttribute("class", listItem.join(" "));
+  });
+
+}
+
+const handleEntityClick = (entity: EntityHeader, li: HTMLLIElement) => {
+  const mem = memory();
+  setSelected(entity.name);
+  resetActiveListItem();
 
   li.setAttribute("class", activeListItem.join(" "));
   window.postMessage({
@@ -72,12 +85,22 @@ const handleEntityClick = (entity: EntityHeader, li: HTMLLIElement) => {
   });
 };
 
+const handlePlayerClick = (li: HTMLLIElement) => {
+  resetActiveListItem();
+  li.setAttribute("class", activeListItem.join(" "));
+
+  window.postMessage({
+    type: "Player"
+  });
+}
+
 const AssetList = () => {
   return (
     <div>
       <ul class="space-y-2" id="asset-list">
+
         <li>
-          <h3 class="flex items-center p-2 w-full text-base font-medium text-gray-900 rounded-lg group dark:text-white uppercase border-b border-gray-200 dark:border-gray-700">
+          <h3 class="flex items-center p-2 w-full text-base font-medium text-gray-900 group dark:text-white uppercase border-b border-gray-200 dark:border-gray-700">
             Entities
           </h3>
           <ul id="entity-list" class="py-2 space-y-2">
@@ -101,74 +124,24 @@ const AssetList = () => {
             </For>
           </ul>
         </li>
-        {/*
-          <li>
-          <button
-            type="button"
-            class="flex items-center p-2 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-            aria-controls="dropdown-acquisition"
-            data-collapse-toggle="dropdown-acquisition"
-          >
-            <span class="flex-1 text-left whitespace-nowrap">Player</span>
-            <svg
-              aria-hidden="true"
-              class="w-6 h-6"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                clip-rule="evenodd"
-              ></path>
-            </svg>
-          </button>
-          <ul id="dropdown-acquisition" class="py-2 space-y-2">
-            <li>
-              <a
-                href="#"
-                class="flex items-center p-2 pl-6 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-              >
-                Overview
-              </a>
-            </li>
-          </ul>
-        </li>
+
         <li>
-          <button
-            type="button"
-            class="flex items-center p-2 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-            aria-controls="dropdown-sales"
-            data-collapse-toggle="dropdown-sales"
-          >
-            <span class="flex-1 text-left whitespace-nowrap">Stage</span>
-            <svg
-              aria-hidden="true"
-              class="w-6 h-6"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                clip-rule="evenodd"
-              ></path>
-            </svg>
-          </button>
-          <ul id="dropdown-sales" class="py-2 space-y-2">
-            <li>
-              <a
-                href="#"
-                class="flex items-center p-2 pl-6 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-              >
-                Overview
-              </a>
-            </li>
+          <h3 class="flex items-center p-2 w-full text-base font-medium text-gray-900 group dark:text-white uppercase border-b border-gray-200 dark:border-gray-700">
+            Player
+          </h3>
+          <ul id="player-list" class="py-2 space-y-2">
+            <li class={listItem.join(" ")}
+              onClick={(event: MouseEvent) => {
+                console.log("clicky!!")
+                const { target } = event;
+                const li = target! as HTMLLIElement;
+                handlePlayerClick(li);
+              }
+              }
+            >Debug</li>
           </ul>
         </li>
-          */}
+
       </ul>
     </div>
   );
