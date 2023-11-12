@@ -1,0 +1,44 @@
+---
+import Navbar from "../components/player/Navbar.astro";
+import Hero from "../components/player/Hero.astro";
+import Instructions from "../components/player/Instructions.astro";
+import Section from "../components/player/Section.astro";
+import Footer from "../components/player/Footer.astro";
+---
+
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+
+		<link rel="icon" href="/whale.svg" color="#fff" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:site" content="@kion_dgl" />
+		<meta name="twitter:creator" content="@kion_dgl" />
+
+		<meta property="og:title" content="MML2 State Viewer" />
+		<meta
+			property="og:description"
+			content="MML2SaveStateViewer is a tool for visualizing the state of memory in Megaman Legends 2 for the PlayStation(PSX)"
+		/>
+		<meta property="og:url" content="https://mml2.dashgl.com/" />
+		<meta
+			property="og:image"
+			content="https://user-images.githubusercontent.com/25621780/224491317-330eab52-6df5-4588-b006-5858f120564a.png"
+		/>
+
+		<title>MML2 Player Viewer</title>
+
+	</head>
+	<body class="bg-gray-50 dark:bg-gray-900 antialiased">
+
+        <Navbar/>
+        <Hero/>
+        <Instructions/>
+        <Section/>
+        <Footer/>
+
+	</body>
+</html>
