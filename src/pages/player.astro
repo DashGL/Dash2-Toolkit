@@ -1,9 +1,10 @@
 ---
-import Navbar from "../components/player/Navbar.astro";
+import Navbar from "../components/player/Navbar";
 import Hero from "../components/player/Hero.astro";
 import Instructions from "../components/player/Instructions.astro";
-import Section from "../components/player/Section.astro";
+import Section from "../components/player/Section";
 import Footer from "../components/player/Footer.astro";
+
 ---
 
 <!doctype html>
@@ -34,11 +35,11 @@ import Footer from "../components/player/Footer.astro";
 	</head>
 	<body class="bg-gray-50 dark:bg-gray-900 antialiased">
 
-        <Navbar/>
+        <Navbar client:only/>
         <Hero/>
-        <Instructions/>
-        <Section/>
+        <Instructions />
+        <Section client:only/>
         <Footer/>
 
 	</body>
-</html>
+</html>../components/player/Section.tsx
