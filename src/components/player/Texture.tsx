@@ -218,15 +218,19 @@ const Textures = () => {
         </div>
 
         <div
-          class="p-5 space-y-4 bg-white border border-gray-200 rounded-lg shadow-md lg:p-8 dark:bg-gray-800 dark:border-gray-700"
+          class="p-5 space-y-4 bg-white border border-gray-200 rounded-lg shadow-md lg:p-8 dark:bg-gray-800 dark:border-gray-700 text-gray-900 dark:text-white"
         >
+          <p>
+            Not sure if there's anything here in terms of debugging for the textures. 
+            Posibilities would be palette swaps, coordinates, or adding the special weapon texture on the end.
+            Or show 4 by default? But I'm not sure with what't going on with Glide.
+          </p>
           <div class="grid grid-cols-1 gap-4 mt-8 xl:gap-12 md:grid-cols-4">
             {
               getTextures().map((tex) => (
                 <TexCard texture={tex} />
               ))
             }
-
           </div>
         </div>
 
