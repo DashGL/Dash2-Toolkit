@@ -3,6 +3,7 @@ import Navbar from "../components/player/Navbar";
 import Hero from "../components/player/Hero.astro";
 import Instructions from "../components/player/Instructions.astro";
 import Texture from "../components/player/Texture";
+import Mesh from "../components/player/Mesh";
 import Footer from "../components/player/Footer.astro";
 
 ---
@@ -39,7 +40,8 @@ import Footer from "../components/player/Footer.astro";
         <Hero/>
         <Instructions />
         <Texture client:only/>
+		<Mesh client:only/>
         <Footer/>
 
 	</body>
-</html>../components/player/Section.tsx../components/player/Texture
+</html>
