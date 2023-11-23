@@ -1,6 +1,7 @@
 import ByteReader from "bytereader";
 import { onMount, createSignal } from "solid-js";
 import { OrbitControls } from "@three-ts/orbit-controls";
+import { saveAs } from "file-saver";
 import {
   BufferGeometry,
   BoxGeometry,
@@ -48,6 +49,7 @@ type DrawCall = {
 // Define Constants
 
 const BODY_COUNT = 6;
+const HEAD_COUNT = 3;
 const SCALE = 0.0009;
 const ROT = new Matrix4();
 ROT.makeRotationX(Math.PI);
@@ -56,37 +58,44 @@ const meshLookup = [
   {
     slug: "megaman",
     url: "/dat/PL00P010.DAT",
-    bodyOfs: 0x80
+    bodyOfs: 0x80,
+    headOfs: 0xb60
   },
   {
     slug: "roll",
     url: "/dat/PL01P000.DAT",
-    bodyOfs: 0x80
+    bodyOfs: 0x80,
+    headOfs: 0xe80
   },
   {
     slug: "tron",
     url: "/dat/PL02P000.DAT",
-    bodyOfs: 0x80
+    bodyOfs: 0x80,
+    headOfs: 0xe80
   },
   {
     slug: "apron",
     url: "/dat/PL03P000.DAT",
-    bodyOfs: 0x80
+    bodyOfs: 0x80, // fits
+    headOfs: 0xe80
   },
   {
     slug: "matilda",
     url: "/dat/PL04P000.DAT",
-    bodyOfs: 0x80
+    bodyOfs: 0x80, //fits
+    headOfs: 0xe80
   },
   {
     slug: "glide",
     url: "/dat/PL05P000.DAT",
-    bodyOfs: 0x80
+    bodyOfs: 0x80,
+    headOfs: 0xe80
   },
   {
     slug: "geetz",
     url: "/dat/PL06P000.DAT",
-    bodyOfs: 0x80
+    bodyOfs: 0x80, // fits
+    headOfs: 0xe80
   }
 ]
 
@@ -342,8 +351,8 @@ const parseMesh = (reader: ByteReader, ofs: number, count: number) => {
 const Canvas = ({ mesh }: { mesh: Mesh }) => {
 
   const grid = new GridHelper(100, 10);
-  const width = 512;
-  const height = 512;
+  const width = 300;
+  const height = 300;
 
   return (
     <canvas class="border" ref={canvas => {
@@ -352,10 +361,10 @@ const Canvas = ({ mesh }: { mesh: Mesh }) => {
       const renderer = new WebGLRenderer({ canvas, alpha: true });
       renderer.setClearColor(new Color(0), 0);
       scene.add(mesh);
-      scene.add(grid);
+      // scene.add(grid);
       new OrbitControls(camera, canvas);
 
-      camera.position.z = 2;
+      camera.position.z = 1;
       camera.position.y = 0.1;
       camera.position.x = 0;
 
@@ -373,6 +382,7 @@ const Canvas = ({ mesh }: { mesh: Mesh }) => {
 const Meshes = () => {
 
   const [getBody, setBody] = createSignal<Mesh[]>([]);
+  const [getHead, setHead] = createSignal<Mesh[]>([]);
 
   onMount(async () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -393,13 +403,21 @@ const Meshes = () => {
     // but it makes more sense to do that with a node based script
     const file = archive.subArray(0x800, 0x800 + length);
 
+    // Comment Out Auto-Download
+    // const mime = { type: "application/octet-stream" };
+    // const blob = new Blob([file], mime);
+    // saveAs(blob, `${slug}.bin`);
+
     // Create a new file reader for the mesh body
     const reader = new ByteReader(file);
 
     // Then we parse each of the individual meshes from each section of the mesh
-    const { bodyOfs } = params
+    const { bodyOfs, headOfs } = params
     const body = parseMesh(reader, bodyOfs, BODY_COUNT);
     setBody(body);
+    const head = parseMesh(reader, headOfs, HEAD_COUNT);
+    setHead(head)
+
   })
 
   return (
@@ -420,13 +438,40 @@ const Meshes = () => {
             and then add in the textures by using a parent component or something
           </p>
         </div>
-        
 
-        {
-          getBody().map((mesh) => (
-            <Canvas mesh={mesh} />
-          ))
-        }
+        <div
+          class="p-5 space-y-4 bg-white border border-gray-200 rounded-lg shadow-md lg:p-8 dark:bg-gray-800 dark:border-gray-700 text-gray-900 dark:text-white"
+        >
+          <h3 class="text-2xl font-extrabold leading-tight tracking-tight text-center text-gray-900 dark:text-white">Body</h3>
+          <p>
+            We could add something here about the start and stop location for each one of the meshes, number of verts, tris, and quads.
+          </p>
+          <div class="grid grid-cols-1 gap-4 mt-8 xl:gap-12 md:grid-cols-3">
+
+            {
+              getBody().map((mesh) => (
+                <Canvas mesh={mesh} />
+              ))
+            }
+          </div>
+        </div>
+
+        <div
+          class="mt-3 p-5 space-y-4 bg-white border border-gray-200 rounded-lg shadow-md lg:p-8 dark:bg-gray-800 dark:border-gray-700 text-gray-900 dark:text-white"
+        >
+          <h3 class="text-2xl font-extrabold leading-tight tracking-tight text-center text-gray-900 dark:text-white">Head</h3>
+          <p>
+            Similar story for head. Maybe it would be a good idea to break this our into its own component?
+          </p>
+          <div class="grid grid-cols-1 gap-4 mt-8 xl:gap-12 md:grid-cols-3">
+
+            {
+              getHead().map((mesh) => (
+                <Canvas mesh={mesh} />
+              ))
+            }
+          </div>
+        </div>
 
       </div>
     </section>
