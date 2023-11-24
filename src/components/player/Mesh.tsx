@@ -50,6 +50,10 @@ type DrawCall = {
 
 const BODY_COUNT = 6;
 const HEAD_COUNT = 3;
+const FEET_COUNT = 2;
+const RIGHT_COUNT = 3;
+const LEFT_COUNT = 3;
+
 const SCALE = 0.0009;
 const ROT = new Matrix4();
 ROT.makeRotationX(Math.PI);
@@ -59,43 +63,64 @@ const meshLookup = [
     slug: "megaman",
     url: "/dat/PL00P010.DAT",
     bodyOfs: 0x80,
-    headOfs: 0xb60
+    headOfs: 0xb60,
+    feetOfs: 0x1800,
+    leftOfs: 0x1dd0,
+    rightOfs: 0x26f0,
   },
   {
     slug: "roll",
     url: "/dat/PL01P000.DAT",
     bodyOfs: 0x80,
-    headOfs: 0xe80
+    headOfs: 0xe80,
+    feetOfs: 0x1a80,
+    leftOfs: 0x1f00,
+    rightOfs: 0x2c00,
   },
   {
     slug: "tron",
     url: "/dat/PL02P000.DAT",
     bodyOfs: 0x80,
-    headOfs: 0xe80
+    headOfs: 0xe80,
+    feetOfs: 0x1a80,
+    leftOfs: 0x1f00,
+    rightOfs: 0x2c00,
   },
   {
     slug: "apron",
     url: "/dat/PL03P000.DAT",
     bodyOfs: 0x80, // fits
-    headOfs: 0xe80
+    headOfs: 0xe80,
+    feetOfs: 0x1a80,
+    leftOfs: 0x1f00,
+    rightOfs: 0x2c00,
   },
   {
     slug: "matilda",
     url: "/dat/PL04P000.DAT",
     bodyOfs: 0x80, //fits
-    headOfs: 0xe80
+    headOfs: 0xe80,
+    feetOfs: 0x1a80,
+    leftOfs: 0x1f00,
+    rightOfs: 0x2c00,
   },
   {
     slug: "glide",
     url: "/dat/PL05P000.DAT",
     bodyOfs: 0x80,
-    headOfs: 0xe80
+    headOfs: 0xe80,
+    feetOfs: 0x1a80,
+    leftOfs: 0x1f00,
+    rightOfs: 0x2c00,
   },
   {
     slug: "geetz",
     url: "/dat/PL06P000.DAT",
     bodyOfs: 0x80, // fits
-    headOfs: 0xe80
+    headOfs: 0xe80,
+    feetOfs: 0x1a80,
+    leftOfs: 0x1f00,
+    rightOfs: 0x2c00,
   }
 ]
 
@@ -383,6 +408,9 @@ const Meshes = () => {
 
   const [getBody, setBody] = createSignal<Mesh[]>([]);
   const [getHead, setHead] = createSignal<Mesh[]>([]);
+  const [getFeet, setFeet] = createSignal<Mesh[]>([]);
+  const [getLeft, setLeft] = createSignal<Mesh[]>([]);
+  const [getRight, setRight] = createSignal<Mesh[]>([]);
 
   onMount(async () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -412,11 +440,17 @@ const Meshes = () => {
     const reader = new ByteReader(file);
 
     // Then we parse each of the individual meshes from each section of the mesh
-    const { bodyOfs, headOfs } = params
+    const { bodyOfs, headOfs, feetOfs, rightOfs, leftOfs } = params
     const body = parseMesh(reader, bodyOfs, BODY_COUNT);
     setBody(body);
     const head = parseMesh(reader, headOfs, HEAD_COUNT);
     setHead(head)
+    const feet = parseMesh(reader, feetOfs, FEET_COUNT);
+    setFeet(feet)
+    const left = parseMesh(reader, leftOfs, LEFT_COUNT);
+    setLeft(left)
+    const right = parseMesh(reader, rightOfs, RIGHT_COUNT);
+    setRight(right)
 
   })
 
@@ -444,7 +478,7 @@ const Meshes = () => {
         >
           <h3 class="text-2xl font-extrabold leading-tight tracking-tight text-center text-gray-900 dark:text-white">Body</h3>
           <p>
-            We could add something here about the start and stop location for each one of the meshes, number of verts, tris, and quads.
+            We could add something here about the <b>expected</b> start and stop location for each one of the meshes, number of verts, tris, and quads.
           </p>
           <div class="grid grid-cols-1 gap-4 mt-8 xl:gap-12 md:grid-cols-3">
 
@@ -467,6 +501,57 @@ const Meshes = () => {
 
             {
               getHead().map((mesh) => (
+                <Canvas mesh={mesh} />
+              ))
+            }
+          </div>
+        </div>
+
+        <div
+          class="mt-3 p-5 space-y-4 bg-white border border-gray-200 rounded-lg shadow-md lg:p-8 dark:bg-gray-800 dark:border-gray-700 text-gray-900 dark:text-white"
+        >
+          <h3 class="text-2xl font-extrabold leading-tight tracking-tight text-center text-gray-900 dark:text-white">Feet</h3>
+          <p>
+            Now it really makes sense to do a component. I guess we should add in a check to see if it fits within the expected range for Megaman. Also I should probably add 
+            labels for each limp.
+          </p>
+          <div class="grid grid-cols-1 gap-4 mt-8 xl:gap-12 md:grid-cols-3">
+            {
+              getFeet().map((mesh) => (
+                <Canvas mesh={mesh} />
+              ))
+            }
+          </div>
+        </div>
+
+        <div
+          class="mt-3 p-5 space-y-4 bg-white border border-gray-200 rounded-lg shadow-md lg:p-8 dark:bg-gray-800 dark:border-gray-700 text-gray-900 dark:text-white"
+        >
+          <h3 class="text-2xl font-extrabold leading-tight tracking-tight text-center text-gray-900 dark:text-white">Left Arm</h3>
+          <p>
+            Left arm when out of battle. Left arm with buster is a duplicate of this data, so we may need to either copy it, or maybe point to it as a way to save space to
+            be able to pack in more data. That seems kind of too fancy for me right now. 
+          </p>
+          <div class="grid grid-cols-1 gap-4 mt-8 xl:gap-12 md:grid-cols-3">
+            {
+              getLeft().map((mesh) => (
+                <Canvas mesh={mesh} />
+              ))
+            }
+          </div>
+        </div>
+
+        <div
+          class="mt-3 p-5 space-y-4 bg-white border border-gray-200 rounded-lg shadow-md lg:p-8 dark:bg-gray-800 dark:border-gray-700 text-gray-900 dark:text-white"
+        >
+          <h3 class="text-2xl font-extrabold leading-tight tracking-tight text-center text-gray-900 dark:text-white">Right Arm</h3>
+          <p>
+            The right arm. This is always in memory and I think the hand gets replaced by the special weapon if one is equipped. Also this completely broke a lot of stuff
+            when I tried to replace it in memory.
+          </p>
+          <div class="grid grid-cols-1 gap-4 mt-8 xl:gap-12 md:grid-cols-3">
+            {
+              getRight().map((mesh) => (
                 <Canvas mesh={mesh} />
               ))
             }
