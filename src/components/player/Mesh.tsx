@@ -4,7 +4,7 @@ import { OrbitControls } from "@three-ts/orbit-controls";
 import { saveAs } from "file-saver";
 import {
   BufferGeometry,
-  BoxGeometry,
+  CanvasTexture,
   MeshBasicMaterial,
   Color,
   Float32BufferAttribute,
@@ -93,7 +93,7 @@ const meshLookup = [
     headOfs: 0xe80,
     feetOfs: 0x1a80,
     leftOfs: 0x1f00,
-    rightOfs: 0x2c00,
+    rightOfs: 0x2d00,
   },
   {
     slug: "matilda",
@@ -321,7 +321,7 @@ const readFace = (reader: ByteReader, verts: Vector3[], ofs: number, count: numb
 }
 
 
-const parseMesh = (reader: ByteReader, ofs: number, count: number) => {
+const parseMesh = (reader: ByteReader, mats: MeshBasicMaterial[], ofs: number, count: number) => {
 
   const meshList: Mesh[] = [];
   const headers: MeshHeader[] = [];
@@ -366,7 +366,7 @@ const parseMesh = (reader: ByteReader, ofs: number, count: number) => {
     const quadColor = readColors(reader, quadColorOfs, quadCount, false);
 
     const geometry = createGeometry(tris, quads, triColor, quadColor);
-    const mesh = new Mesh(geometry, mat);
+    const mesh = new Mesh(geometry, mats);
     meshList.push(mesh);
   }
 
@@ -412,10 +412,7 @@ const Meshes = () => {
   const [getLeft, setLeft] = createSignal<Mesh[]>([]);
   const [getRight, setRight] = createSignal<Mesh[]>([]);
 
-  onMount(async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const slug = urlParams.get('slug') || 'megaman';
-
+  const loadMesh = async (slug: string, mats: MeshBasicMaterial[])=> {
     const params = meshLookup.find(lookup => lookup.slug === slug) || meshLookup[0];
     const { url } = params
     const req = await fetch(url);
@@ -441,17 +438,60 @@ const Meshes = () => {
 
     // Then we parse each of the individual meshes from each section of the mesh
     const { bodyOfs, headOfs, feetOfs, rightOfs, leftOfs } = params
-    const body = parseMesh(reader, bodyOfs, BODY_COUNT);
+    const body = parseMesh(reader, mats, bodyOfs, BODY_COUNT);
     setBody(body);
-    const head = parseMesh(reader, headOfs, HEAD_COUNT);
+    const head = parseMesh(reader, mats, headOfs, HEAD_COUNT);
     setHead(head)
-    const feet = parseMesh(reader, feetOfs, FEET_COUNT);
+    const feet = parseMesh(reader, mats, feetOfs, FEET_COUNT);
     setFeet(feet)
-    const left = parseMesh(reader, leftOfs, LEFT_COUNT);
+    const left = parseMesh(reader, mats, leftOfs, LEFT_COUNT);
     setLeft(left)
-    const right = parseMesh(reader, rightOfs, RIGHT_COUNT);
+    const right = parseMesh(reader, mats, rightOfs, RIGHT_COUNT);
     setRight(right)
+  }
 
+  const getTexture = ()=> {
+    const urlParams = new URLSearchParams(window.location.search);
+    const slug = urlParams.get('slug') || 'megaman';
+
+    const img0 = document.getElementById(`${slug}-0`)
+    const img1 = document.getElementById(`${slug}-1`)
+    const img2 = document.getElementById(`${slug}-2`)
+    const img3 = document.getElementById(`${slug}-3`)
+
+    const mats: MeshBasicMaterial[] = [];
+
+    if(!img0) {
+      return setTimeout(getTexture, 10);
+    } else {
+      const map = new CanvasTexture(img0)
+      const mat = new MeshBasicMaterial({ map });
+      mats.push(mat)
+    }
+
+    if(img1) {
+      const map = new CanvasTexture(img1)
+      const mat = new MeshBasicMaterial({ map });
+      mats.push(mat)
+    }
+
+    if(img2) {
+      const map = new CanvasTexture(img2)
+      const mat = new MeshBasicMaterial({ map });
+      mats.push(mat)
+    }
+
+    if(img3) {
+      const map = new CanvasTexture(img3)
+      const mat = new MeshBasicMaterial({ map });
+      mats.push(mat)
+    }
+
+    loadMesh(slug, mats);
+  }
+
+  onMount(async () => {
+    getTexture();
   })
 
   return (

@@ -135,7 +135,7 @@ const readTextures = (buffer: ArrayBuffer) => {
   return textures;
 }
 
-const TexCard = ({ texture }: { texture: DatTexture }) => {
+const TexCard = ({ texture, slug, index }: { texture: DatTexture, slug: string, index: number }) => {
 
   return (
     <canvas ref={canvas => {
@@ -150,17 +150,19 @@ const TexCard = ({ texture }: { texture: DatTexture }) => {
           ctx!.fillRect(x, y, 1, 1)
         }
       }
-    }} width={256} height={256} />
+    }} width={256} height={256} id={`${slug}-${index}`}/>
   )
 }
 
 const Textures = () => {
 
   const [getTextures, setTextures] = createSignal<DatTexture[]>([]);
+  const [getSlug, setSlug] = createSignal('');
 
   onMount(async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const slug = urlParams.get('slug') || 'megaman';
+    setSlug(slug);
 
     const textureLookup = [
       {
@@ -227,8 +229,8 @@ const Textures = () => {
           </p>
           <div class="grid grid-cols-1 gap-4 mt-8 xl:gap-12 md:grid-cols-4">
             {
-              getTextures().map((tex) => (
-                <TexCard texture={tex} />
+              getTextures().map((tex, index) => (
+                <TexCard texture={tex} slug={getSlug()} index={index}/>
               ))
             }
           </div>
