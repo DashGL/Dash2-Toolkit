@@ -288,8 +288,8 @@ const readFace = (reader: ByteReader, verts: Vector3[], ofs: number, count: numb
       x: verts[indexB].x,
       y: verts[indexB].y,
       z: verts[indexB].z,
-      u: bu * PIXEL_TO_FLOAT_RATIO + PIXEL_ADJUSTMEST,
-      v: bv * PIXEL_TO_FLOAT_RATIO + PIXEL_ADJUSTMEST,
+      u: bu,
+      v: bv,
     };
 
     const c: FaceIndex = {
@@ -297,8 +297,8 @@ const readFace = (reader: ByteReader, verts: Vector3[], ofs: number, count: numb
       x: verts[indexC].x,
       y: verts[indexC].y,
       z: verts[indexC].z,
-      u: cu * PIXEL_TO_FLOAT_RATIO + PIXEL_ADJUSTMEST,
-      v: cv * PIXEL_TO_FLOAT_RATIO + PIXEL_ADJUSTMEST,
+      u: cu,
+      v: cv,
     };
 
     const d: FaceIndex = {
@@ -306,8 +306,8 @@ const readFace = (reader: ByteReader, verts: Vector3[], ofs: number, count: numb
       x: verts[indexD].x,
       y: verts[indexD].y,
       z: verts[indexD].z,
-      u: du * PIXEL_TO_FLOAT_RATIO + PIXEL_ADJUSTMEST,
-      v: dv * PIXEL_TO_FLOAT_RATIO + PIXEL_ADJUSTMEST,
+      u: du,
+      v: dv,
     };
 
     faces.push(a, c, b);
@@ -465,24 +465,28 @@ const Meshes = () => {
       return setTimeout(getTexture, 10);
     } else {
       const map = new CanvasTexture(img0)
+      map.flipY = false;
       const mat = new MeshBasicMaterial({ map });
       mats.push(mat)
     }
 
     if(img1) {
       const map = new CanvasTexture(img1)
+      map.flipY = false;
       const mat = new MeshBasicMaterial({ map });
       mats.push(mat)
     }
 
     if(img2) {
       const map = new CanvasTexture(img2)
+      map.flipY = false;
       const mat = new MeshBasicMaterial({ map });
       mats.push(mat)
     }
 
     if(img3) {
       const map = new CanvasTexture(img3)
+      map.flipY = false;
       const mat = new MeshBasicMaterial({ map });
       mats.push(mat)
     }
