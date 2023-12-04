@@ -321,12 +321,13 @@ const readFace = (reader: ByteReader, verts: Vector3[], ofs: number, count: numb
 }
 
 
-const parseMesh = (reader: ByteReader, mats: MeshBasicMaterial[], ofs: number, count: number) => {
+const parseMesh = (reader: ByteReader, mats: MeshBasicMaterial[], ofs: number, count: number, length:number) => {
 
   const meshList: Mesh[] = [];
   const headers: MeshHeader[] = [];
   reader.seek(ofs);
 
+  const START_OFS = ofs;
   const mat = new MeshNormalMaterial();
 
   for (let i = 0; i < count; i++) {
@@ -355,6 +356,7 @@ const parseMesh = (reader: ByteReader, mats: MeshBasicMaterial[], ofs: number, c
     })
   }
 
+  let maxOfs = ofs;
   for (let i = 0; i < headers.length; i++) {
     const header = headers[i];
     const { vertCount, vertOfs, triCount, triOfs, quadCount, quadOfs } = header;
@@ -362,12 +364,31 @@ const parseMesh = (reader: ByteReader, mats: MeshBasicMaterial[], ofs: number, c
     const tris = readFace(reader, verts, triOfs, triCount, false)
     const quads = readFace(reader, verts, quadOfs, quadCount, true)
     const { triColorOfs, quadColorOfs } = header;
+
+    // Get the triangle vertex colors
     const triColor = readColors(reader, triColorOfs, triCount, false);
+    const maxTri = reader.tell();
+    if(triCount && maxTri > maxOfs) {
+      maxOfs = maxTri;
+    }
+
+    // Get the Quad Vertex Colors
     const quadColor = readColors(reader, quadColorOfs, quadCount, false);
+    const maxQuad = reader.tell();
+    if(quadCount && maxQuad > maxOfs) {
+      maxOfs = maxQuad;
+    }
 
     const geometry = createGeometry(tris, quads, triColor, quadColor);
     const mesh = new Mesh(geometry, mats);
     meshList.push(mesh);
+  }
+
+  const submeshLength = maxOfs - START_OFS;
+  if(submeshLength <= length) {
+    console.log("Fits");
+  } else {
+    console.log("Does not fit");
   }
 
   return meshList;
@@ -412,6 +433,14 @@ const Meshes = () => {
   const [getLeft, setLeft] = createSignal<Mesh[]>([]);
   const [getRight, setRight] = createSignal<Mesh[]>([]);
 
+  const BODY_OFS = 0x80
+  const HEAD_OFS = 0xb60
+  const FEET_OFS = 0x1800
+  const RIGHT_ARM_OFS = 0x1dd0
+  const BUSTER_OFS = 0x2220;
+  const LEFT_ARM_OFS = 0x26f0;
+  const LEFT_ARM_END = 0x2b40;
+
   const loadMesh = async (slug: string, mats: MeshBasicMaterial[])=> {
     const params = meshLookup.find(lookup => lookup.slug === slug) || meshLookup[0];
     const { url } = params
@@ -438,15 +467,15 @@ const Meshes = () => {
 
     // Then we parse each of the individual meshes from each section of the mesh
     const { bodyOfs, headOfs, feetOfs, rightOfs, leftOfs } = params
-    const body = parseMesh(reader, mats, bodyOfs, BODY_COUNT);
+    const body = parseMesh(reader, mats, bodyOfs, BODY_COUNT, HEAD_OFS - BODY_OFS);
     setBody(body);
-    const head = parseMesh(reader, mats, headOfs, HEAD_COUNT);
+    const head = parseMesh(reader, mats, headOfs, HEAD_COUNT, FEET_OFS - HEAD_OFS);
     setHead(head)
-    const feet = parseMesh(reader, mats, feetOfs, FEET_COUNT);
+    const feet = parseMesh(reader, mats, feetOfs, FEET_COUNT, RIGHT_ARM_OFS - FEET_OFS);
     setFeet(feet)
-    const left = parseMesh(reader, mats, leftOfs, LEFT_COUNT);
+    const left = parseMesh(reader, mats, leftOfs, LEFT_COUNT, LEFT_ARM_END - LEFT_ARM_OFS);
     setLeft(left)
-    const right = parseMesh(reader, mats, rightOfs, RIGHT_COUNT);
+    const right = parseMesh(reader, mats, rightOfs, RIGHT_COUNT, BUSTER_OFS - RIGHT_ARM_OFS);
     setRight(right)
   }
 
