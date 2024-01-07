@@ -19,6 +19,7 @@
     "file-saver": "^2.0.5",
     "localforage": "^1.10.0",
     "pako": "^2.1.0",
+    "pngjs": "^7.0.0",
     "solid-js": "^1.7.7",
     "solid-three": "^0.2.0",
     "solidjs-use": "^2.2.1",
@@ -28,6 +29,7 @@
   "devDependencies": {
     "@types/file-saver": "^2.0.5",
     "@types/pako": "^2.0.0",
+    "@types/pngjs": "^6.0.4",
     "@types/three": "^0.152.1",
     "ts-node": "^10.9.2"
   }

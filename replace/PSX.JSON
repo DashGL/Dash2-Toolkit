@@ -1,0 +1,13 @@
+[
+    {
+        "name": "PL00T.BIN",
+        "offsets" : [
+            {
+                "filename": "default_body.png",
+                "compressed": true,
+                "start": 48,
+                "end": 12288
+            }
+        ]
+    }
+]
