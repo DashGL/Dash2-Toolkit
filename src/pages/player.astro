@@ -1,11 +1,14 @@
 ---
-import Navbar from "../components/states/Navbar.astro";
-import Aside from "../components/states/Aside.astro";
-import Main from "../components/states/Main";
-import AnimControls from "../components/states/viewport/AnimControls";
-import Shortcuts from "../components/states/Shortcuts.astro";
+import Navbar from "../components/player/Navbar";
+import Hero from "../components/player/Hero.astro";
+import Instructions from "../components/player/Instructions.astro";
+import Texture from "../components/player/Texture";
+import Mesh from "../components/player/Mesh";
+import Footer from "../components/player/Footer.astro";
+
 ---
 
+<!doctype html>
 <html>
 	<head>
 		<meta charset="UTF-8" />
@@ -28,24 +31,17 @@ import Shortcuts from "../components/states/Shortcuts.astro";
 			content="https://user-images.githubusercontent.com/25621780/224491317-330eab52-6df5-4588-b006-5858f120564a.png"
 		/>
 
-		<title>MML2 StateViewer</title>
+		<title>MML2 Player Viewer</title>
 
-		<script
-			src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.7.0/flowbite.min.js"
-		></script>
 	</head>
-	<body>
-		<div class="bg-gray-50 dark:bg-gray-900 antialiased">
-			<Navbar />
-			<Aside />
-			<main
-				class="bg-gray-50 dark:bg-gray-900 fixed top-[3.5rem]"
-				style="width: calc(100% - 320px); left: 256px; height: calc(100% - 3.5rem);"
-			>
-				<Main client:only />
-				<AnimControls client:only />
-			</main>
-			<Shortcuts />
-		</div>
+	<body class="bg-gray-50 dark:bg-gray-900 antialiased">
+
+        <Navbar client:only/>
+        <Hero/>
+        <Instructions />
+        <Texture client:only/>
+		<Mesh client:only/>
+        <Footer/>
+
 	</body>
 </html>
