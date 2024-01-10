@@ -59,7 +59,10 @@ const compressSegment = (segment: Buffer) => {
 
     // Create a boolean array and out buffer
     const bucket: boolean[] = [];
-    const compressed = Buffer.alloc(segment.length)
+    
+    // Worst case scenario, can't compress anything and
+    // 0xffff is added to the end, this is likely to happen in last segment
+    const compressed = Buffer.alloc(segment.length + 2)
 
     // Number of min and max number of words to match
     const MAX_CAP = 9;
@@ -117,7 +120,6 @@ const compressSegment = (segment: Buffer) => {
 }
 
 const compressImage = (decompressed: Buffer) => {
-
     const SEGMENT_LENGTH = 0x2000;
     const { length } = decompressed
     const count = Math.ceil(length/SEGMENT_LENGTH);
@@ -126,6 +128,7 @@ const compressImage = (decompressed: Buffer) => {
     const payloads: Buffer[] = []
 
     for(let i = 0; i < count; i++) {
+        console.log('Compressing segment %s of %s', i +1 , count)
         const WINDOW_END = (i + 1) * SEGMENT_LENGTH
         const end =  WINDOW_END < length ? WINDOW_END : length;
         const start = i * SEGMENT_LENGTH;
@@ -138,7 +141,7 @@ const compressImage = (decompressed: Buffer) => {
     const bitfied = encodeBitfield(bits)
     const payload = Buffer.concat(payloads)
 
-    return { bitfied, payload }
+    return [ bitfied, payload ] 
 }
 
 export default compressImage;

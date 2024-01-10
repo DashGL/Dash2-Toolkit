@@ -10,7 +10,7 @@ const encodeTexel = (r: number, g: number, b: number, a: number) => {
 }
 
 // Function expects a png buffer for the image
-const encodeImage = (pngSrc: Buffer) => {
+const encodeImage = (pngSrc: Buffer): [ Buffer, Buffer ] => {
 
     const pngInfo = PNG.sync.read(pngSrc);
     const { width, height, data } = pngInfo;
@@ -63,7 +63,7 @@ const encodeImage = (pngSrc: Buffer) => {
         outOfs += 2
     }
 
-    return { pal, img }
+    return [pal, img] 
 }
 
 export default encodeImage
