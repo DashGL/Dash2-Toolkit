@@ -10,7 +10,8 @@ and replace them in their respective PSX and PC files
 */
 
 const PC_FILE = `replace/PC_IN/PL00T.DAT`
-const PSX_FILE = `replace/PSX_IN/PL00T.BIN`
+const PSX_IN = `replace/PSX_IN/PL00T.BIN`
+const PSX_OUT = `replace/PSX_OUT/PL00T.BIN`
 
 
 const writePCFile = (bodyPal:Buffer, bodyImg:Buffer, facePal:Buffer, faceImg:Buffer) => {
@@ -22,7 +23,7 @@ const writePCFile = (bodyPal:Buffer, bodyImg:Buffer, facePal:Buffer, faceImg:Buf
 
 const writePSXFile = (bodyPal:Buffer, bodyImg:Buffer, facePal:Buffer, faceImg:Buffer) => {
 
-    const source = readFileSync(PSX_FILE);
+    const source = readFileSync(PSX_IN);
     const STRIDE = 0x800
 
     // Get the header for image 0
@@ -44,7 +45,7 @@ const writePSXFile = (bodyPal:Buffer, bodyImg:Buffer, facePal:Buffer, faceImg:Bu
 
     // Copy the secondary palette
     console.log('2. Copy palette')
-    const pal = source.subarray(0x3000, 0x30b0)
+    const pal = Buffer.from(source.subarray(0x3000, 0x30b0))
 
     // Get the header for image 1
     console.log('3. Read face header')
@@ -124,9 +125,11 @@ const writePSXFile = (bodyPal:Buffer, bodyImg:Buffer, facePal:Buffer, faceImg:Bu
     for(let i = 0; i < encodedBody.length; i++) {
         source[ofs++] = encodedBody[i]
     }
+    console.log('Body end offset: 0x%s', ofs.toString(16))
     ofs = Math.ceil(ofs / STRIDE) * STRIDE;
 
     console.log('7b. Write pal')
+    console.log('Palette start offset: 0x%s', ofs.toString(16))
     for(let i = 0; i < pal.length; i++) {
         source[ofs++] = pal[i]
     }
@@ -137,6 +140,9 @@ const writePSXFile = (bodyPal:Buffer, bodyImg:Buffer, facePal:Buffer, faceImg:Bu
         source[ofs++] = encodedFace[i]
     }
 
+    // Write output to be replaced
+    console.log(PSX_OUT);
+    writeFileSync(PSX_OUT, source)
 }
 
 const PL00T = (body: Buffer, face: Buffer) => {
