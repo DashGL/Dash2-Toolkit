@@ -9,16 +9,43 @@ and replace them in their respective PSX and PC files
 
 */
 
-const PC_FILE = `replace/PC_IN/PL00T.DAT`
+const PC_IN = `replace/PC_IN/PL00T.DAT`
+const PC_OUT = `replace/PC_OUT/PL00T.DAT`
 const PSX_IN = `replace/PSX_IN/PL00T.BIN`
 const PSX_OUT = `replace/PSX_OUT/PL00T.BIN`
 
 
 const writePCFile = (bodyPal:Buffer, bodyImg:Buffer, facePal:Buffer, faceImg:Buffer) => {
+    const source = readFileSync(PC_IN);
 
-    const source = readFileSync(PC_FILE);
+    // With this we can replace bytes in-place
+    const PAL0_START = 0x80c;
+    const IMG0_START = 0x898;
+    
+    // Alternate palette for body (unused)
+    const PAL1_START = 0x88a0
 
-    writeFileSync(PC_FILE, source)
+    const PAL2_START = 0x8930;
+    const IMG1_START = 0x89b0;
+
+    // Copy content into file
+    for(let i = 0; i < bodyPal.length; i++) {
+        source[PAL0_START + i] = bodyPal[i]
+    }
+
+    for(let i = 0; i < bodyImg.length; i++) {
+        source[IMG0_START + i] = bodyImg[i]
+    }
+
+    for(let i = 0; i < facePal.length; i++) {
+        source[PAL2_START + i] = facePal[i]
+    }
+
+    for(let i = 0; i < faceImg.length; i++) {
+        source[IMG1_START + i] = faceImg[i]
+    }
+
+    writeFileSync(PC_OUT, source)
 }
 
 const writePSXFile = (bodyPal:Buffer, bodyImg:Buffer, facePal:Buffer, faceImg:Buffer) => {
