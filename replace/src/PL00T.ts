@@ -27,7 +27,6 @@ const writePSXFile = (bodyPal:Buffer, bodyImg:Buffer, facePal:Buffer, faceImg:Bu
     const STRIDE = 0x800
 
     // Get the header for image 0
-    console.log('1. Read body header')
     const img0Header = {
         type: source.readUInt32LE(0x00),
         fullSize: source.readUInt32LE(0x04),
@@ -44,11 +43,9 @@ const writePSXFile = (bodyPal:Buffer, bodyImg:Buffer, facePal:Buffer, faceImg:Bu
     }
 
     // Copy the secondary palette
-    console.log('2. Copy palette')
     const pal = Buffer.from(source.subarray(0x3000, 0x30b0))
 
     // Get the header for image 1
-    console.log('3. Read face header')
     const img1Header = {
         type: source.readUInt32LE(0x3800 + 0x00),
         fullSize: source.readUInt32LE(0x3800 + 0x04),
@@ -65,7 +62,6 @@ const writePSXFile = (bodyPal:Buffer, bodyImg:Buffer, facePal:Buffer, faceImg:Bu
     }
 
     // Compress the body image to replace in archive
-    console.log('4. Compress body')
     const bodyTexture = Buffer.concat([bodyPal, bodyImg])
     const [bodyBits, bodyPayload] = compressImage(bodyTexture)
     img0Header.colorCount = 16;
@@ -88,15 +84,12 @@ const writePSXFile = (bodyPal:Buffer, bodyImg:Buffer, facePal:Buffer, faceImg:Bu
     const encodedBody = Buffer.concat([bodyHeader, bodyBits, bodyPayload])
 
     // Compress the Face image to replace in archive
-    console.log('5a. Compress face')
     const faceTexture = Buffer.concat([facePal, faceImg])
-    console.log('5b. faceTexture: 0x%s', faceTexture.length.toString(16))
     const [faceBits, facePayload] = compressImage(faceTexture)
     img1Header.colorCount = 16;
     img1Header.fullSize = faceTexture.length;
     img1Header.bitfieldSize = faceBits.length;
 
-    console.log('Writing face header')
     const faceHeader = Buffer.alloc(0x30, 0);
     faceHeader.writeUInt32LE(img1Header.type, 0x00)
     faceHeader.writeUInt32LE(img1Header.fullSize, 0x04)
@@ -113,35 +106,26 @@ const writePSXFile = (bodyPal:Buffer, bodyImg:Buffer, facePal:Buffer, faceImg:Bu
     const encodedFace = Buffer.concat([faceHeader, faceBits, facePayload])
 
     // Reset the PSX archive so we can write our own
-    console.log('6. Reset')
     source.fill(0)
     
     // Write the Content to the file
 
-    console.log('7. Write file')
     let ofs = 0;
-
-    console.log('7a. Write body')
     for(let i = 0; i < encodedBody.length; i++) {
         source[ofs++] = encodedBody[i]
     }
-    console.log('Body end offset: 0x%s', ofs.toString(16))
     ofs = Math.ceil(ofs / STRIDE) * STRIDE;
 
-    console.log('7b. Write pal')
-    console.log('Palette start offset: 0x%s', ofs.toString(16))
     for(let i = 0; i < pal.length; i++) {
         source[ofs++] = pal[i]
     }
     ofs = Math.ceil(ofs / STRIDE) * STRIDE;
 
-    console.log('7c. Write face')
     for(let i = 0; i < encodedFace.length; i++) {
         source[ofs++] = encodedFace[i]
     }
 
     // Write output to be replaced
-    console.log(PSX_OUT);
     writeFileSync(PSX_OUT, source)
 }
 
