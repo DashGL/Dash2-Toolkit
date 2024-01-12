@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'fs'
+import { readFileSync, writeFileSync, readdirSync } from 'fs'
 
 type OffsetList = {
     filename: string;
@@ -73,6 +73,7 @@ const searchROM = (needle: Buffer, haystack: Buffer, name: string) => {
         }
 
         if (found) {
+            console.log('Replace complete!!')
             return location;
         }
     }
@@ -108,25 +109,11 @@ const updateROM = () => {
 
     const PSX_IN = './PSX_IN'
     const PSX_OUT = './PSX_OUT'
-
-    const PSX_ARCHIVES = [
-        {
-            "name": "PL00T.BIN",
-            "offsets": [
-                {
-                    "filename": "default_body.png",
-                    "isCompressed": true,
-                    "start": 0x0030,
-                    "end": 0x3000
-                }
-            ]
-        }
-    ]
-
+    
+    const PSX_ARCHIVES = readdirSync('replace/PSX_OUT');
     const ROM = readFileSync('/home/kion/.pcsxr/roms/TRACK_01_READONLY.bin');
 
-    PSX_ARCHIVES.forEach((archive) => {
-        const { name } = archive
+    PSX_ARCHIVES.forEach((name) => {
         const srcFile = readFileSync(`replace/${PSX_IN}/${name}`);
         const dstFile = readFileSync(`replace/${PSX_OUT}/${name}`);
         const offset = searchROM(srcFile, ROM, name)

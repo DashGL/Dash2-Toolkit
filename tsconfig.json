@@ -16,5 +16,5 @@
     "esm": true,
     // https://github.com/TypeStrong/ts-node/issues/422
     "experimentalSpecifierResolution": "node",
-  },
+  }
 }
