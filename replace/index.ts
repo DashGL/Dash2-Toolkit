@@ -29,7 +29,28 @@ try {
         readFileSync(`replace/${SRC_DIR}/a05_LEG_LEFT_BOTTOM.OBJ`, 'ascii')
     ]
 
-    PL00P010(body);
+    const head: [string] = [
+        readFileSync(`replace/${SRC_DIR}/b00_HEAD_HAIR.OBJ`, 'ascii')
+    ]
+
+    const feet: [string, string] = [
+        readFileSync(`replace/${SRC_DIR}/c00_RIGHT_FOOT.OBJ`, 'ascii'),
+        readFileSync(`replace/${SRC_DIR}/c01_LEFT_FOOT.OBJ`, 'ascii'),
+    ]
+
+    const left: [string, string, string] = [
+        readFileSync(`replace/${SRC_DIR}/d00_LEFT_SHOULDER.OBJ`, 'ascii'),
+        readFileSync(`replace/${SRC_DIR}/d01_LEFT_ARM.OBJ`, 'ascii'),
+        readFileSync(`replace/${SRC_DIR}/d02_LEFT_HAND.OBJ`, 'ascii'),
+    ]
+
+    const right: [string, string, string] = [
+        readFileSync(`replace/${SRC_DIR}/e00_RIGHT_SHOULDER.OBJ`, 'ascii'),
+        readFileSync(`replace/${SRC_DIR}/e01_RIGHT_ARM.OBJ`, 'ascii'),
+        readFileSync(`replace/${SRC_DIR}/e02_RIGHT_HAND.OBJ`, 'ascii'),
+    ]
+
+    PL00P010(body, head, feet, left, right);
 } catch (err) {
     console.warn("--- Unable to Encode Player Model ---")
     throw err;

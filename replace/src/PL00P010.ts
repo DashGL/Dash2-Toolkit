@@ -11,7 +11,7 @@ import {
     Matrix4,
 } from "three";
 
-const LIGHTING_OFFSET = 0x2268;
+
 
 
 // Megaman with No helmet, normal shoes
@@ -21,30 +21,14 @@ const PC_OUT = `replace/PC_OUT/PL00P010.DAT`
 const PSX_IN = `replace/PSX_IN/PL00P010.BIN`
 const PSX_OUT = `replace/PSX_OUT/PL00P010.BIN`
 
-const writePSXFile = (body: Buffer) => {
+const writePSXFile = (model: Buffer) => {
 
     // Read the source
     const source = readFileSync(PSX_IN)
 
     // Get the section for the model
-    const model = source.subarray(0x30, 0x2B70)
-
-    // Remove ALL left arm buster data
-    model.fill(0, 0x2220, 0x2268)
-    model.fill(0x80, 0x2268, 0x26f0)
-
-    const BODY_START = 0x0080;
-    const HEAD_START = 0x0b60;
-    const FEET_START = 0x1800;
-    const LEFT_START = 0x1dd0;
-    const BUSTER_START = 0x2220;
-    const RIGHT_START = 0x26f0;
-    const EOF = 0x02b40;
-
-    // Replace the body
-    model.fill(0, BODY_START, HEAD_START)
-    for(let i = 0; i < body.length; i++){
-        model[BODY_START + i] = body[i]
+    for (let i = 0x80; i < model.length; i++) {
+        source[i + 0x30] = model[i]
     }
 
     // Write the file
@@ -320,98 +304,201 @@ const encodeMesh = (obj: string, faceMat: boolean = false): Primitive => {
     return { tri, quad, vertices }
 }
 
-const encodeModelBody = (
-    limbs: [string, string, string, string, string, string]
+
+const PL00P010 = (
+    body: [string, string, string, string, string, string],
+    head: [string],
+    feet: [string, string],
+    left: [string, string, string],
+    right: [string, string, string],
 ) => {
 
-    const BODY_START = 0x80;
-    const BODY_END = 0xe80
-    const BODY_LEN = BODY_END - BODY_START;
+    const BODY_START = 0x0080;
+    const BODY_CONTENT = 0x0110;
 
-    const prims: Primitive[] = []
-    const START_OFS = 0x110;
-    let shadowPtr = START_OFS
-    for (let i = 0; i < limbs.length; i++) {
-        const prim = encodeMesh(limbs[i]);
-        const { tri, quad, vertices } = prim;
-        prims.push(prim);
-        shadowPtr += tri.length;
-        shadowPtr += quad.length;
-        shadowPtr += vertices.length;
-    }
+    const HEAD_START = 0x0b60;
+    const HEAD_CONTENT = 0x0ba8;
 
+    const FEET_START = 0x1800;
+    const FEET_CONTENT = 0x01830;
 
-    const mesh = Buffer.alloc(BODY_LEN, 0x80);
-    // Need to zero out the header
-    for (let i = 0; i < START_OFS; i++) {
-        mesh[i] = 0;
-    }
-    let headerOfs = 0;
-    let contentOfs = START_OFS - BODY_START;
-    prims.forEach(prim => {
-        const { tri, quad, vertices } = prim;
+    const LEFT_START = 0x1dd0;
+    const LEFT_CONTENT = 0x1e18;
+
+    const BUSTER_START = 0x2220;
+
+    const RIGHT_START = 0x26f0;
+    const RIGHT_CONTENT = 0x2738;
+
+    const EOF = 0x02b40;
+
+    const bodyMesh: Primitive[] = [
+        encodeMesh(body[0]),
+        encodeMesh(body[1]),
+        encodeMesh(body[2]),
+        encodeMesh(body[3]),
+        encodeMesh(body[4]),
+        encodeMesh(body[5]),
+    ]
+
+    const headMesh: Primitive[] = [
+        encodeMesh(head[0]),
+        {
+            vertices: Buffer.from('5f2cde3ba12fde3bb06faf3b00402f39b5a32f3b4ba02f3b007c1f380598bf38fb9bbf38001cfe38a6cfce3b5accce3b506caf3b', 'hex'),
+            tri: Buffer.from('01101f1b051f00008a8100e03a2b3d363a360000838301a0072f002f03260000078401a03336382b39360000888101a0201b3f103b1f0000830503e0', 'hex'),
+            quad: Buffer.from('2222201b3a223b1f874181e11e2206221f1b051f08c240e01f1b01101f000002034522a0201b20003f103f0283c402a0', 'hex'),
+        },
+        {
+            vertices: Buffer.from('0060003bb5a32f3b4ba02f3b2d14103bd317103b00ec4f390598bf38fb9bbf38', 'hex'),
+            tri: Buffer.from('202b2f2e20360000850100a0102e1f2b1f360000840200a022231f2b1d23000086c201a0', 'hex'),
+            quad: Buffer.from('06231d23102e1f2b8103a1a03a232f2e2223202b8281a1a0', 'hex'),
+        }
+    ]
+
+    const feetMesh: Primitive[] = [
+        encodeMesh(feet[0]),
+        encodeMesh(feet[1]),
+    ]
+
+    const leftMesh: Primitive[] = [
+        encodeMesh(left[0]),
+        encodeMesh(left[1]),
+        encodeMesh(left[2]),
+    ]
+
+    const rightMesh: Primitive[] = [
+        encodeMesh(right[0]),
+        encodeMesh(right[1]),
+        encodeMesh(right[2]),
+    ]
+
+    const model = Buffer.alloc(EOF, 0);
+    const LIGHTING_OFFSET = 0x2268;
+
+    const content = [
+        { start: BODY_CONTENT, end: HEAD_START },
+        { start: HEAD_CONTENT, end: FEET_START },
+        { start: FEET_CONTENT, end: LEFT_START },
+        { start: LEFT_CONTENT, end: BUSTER_START },
+        { start: RIGHT_CONTENT, end: EOF },
+    ]
+
+    const writeSegment = (vertices: Buffer, tri: Buffer, quad: Buffer, ofs: number) => {
         const triCount = tri.length / 12;
         const quadCount = quad.length / 12;
         const vertCount = vertices.length / 4;
 
-        console.log("Vert Count: ", vertCount)
-
-        // Write the header for each primitive
-        mesh.writeUInt8(triCount, headerOfs + 0) // tris
-        mesh.writeUInt8(quadCount, headerOfs + 1) // quads
-        mesh.writeUInt8(vertCount, headerOfs + 2) // verts
-        mesh.writeUInt8(0, headerOfs + 3) // nop
-        headerOfs += 4;
+        model.writeUInt8(triCount, ofs + 0) // tris
+        model.writeUInt8(quadCount, ofs + 1) // quads
+        model.writeUInt8(vertCount, ofs + 2) // verts
+        model.writeUInt8(0, ofs + 3) // nop
 
         // Triangle Definition Offset
-        mesh.writeUInt32LE(contentOfs + BODY_START, headerOfs)
-        headerOfs += 4;
-        for (let i = 0; i < tri.length; i++) {
-            mesh[contentOfs++] = tri[i]
+        let found = false;
+        for (let i = 0; i < 3; i++) {
+            const { start, end } = content[i];
+            const len = end - start;
+            const src = tri;
+            if (src.length > len) {
+                continue;
+            }
+
+            model.writeUInt32LE(start, ofs + 0x04)
+            for (let n = 0; n < src.length; n++) {
+                model[start + n] = src[n]
+            }
+            content[i].start += src.length
+            found = true;
+            break;
         }
 
+        if (!found) {
+            throw new Error("No space for triangles")
+        }
+
+
         // Quad Definition Offset
-        mesh.writeUInt32LE(contentOfs + BODY_START, headerOfs)
-        headerOfs += 4;
-        for (let i = 0; i < quad.length; i++) {
-            mesh[contentOfs++] = quad[i]
+        found = false;
+        for (let i = 0; i < 3; i++) {
+            const { start, end } = content[i];
+            const len = end - start;
+            const src = quad;
+            if (src.length > len) {
+                continue;
+            }
+
+            model.writeUInt32LE(start, ofs + 0x08)
+            for (let n = 0; n < src.length; n++) {
+                model[start + n] = src[n]
+            }
+            content[i].start += src.length
+            found = true;
+            break;
+        }
+
+        if (!found) {
+            throw new Error("No space for quads")
         }
 
         // Vertex Definition Offset
-        mesh.writeUInt32LE(contentOfs + BODY_START, headerOfs)
-        headerOfs += 4;
-        for (let i = 0; i < vertices.length; i++) {
-            mesh[contentOfs++] = vertices[i]
+        found = false;
+        for (let i = 0; i < 3; i++) {
+            const { start, end } = content[i];
+            const len = end - start;
+            const src = vertices;
+            if (src.length > len) {
+                continue;
+            }
+
+            model.writeUInt32LE(start, ofs + 0x0c)
+            for (let n = 0; n < src.length; n++) {
+                model[start + n] = src[n]
+            }
+            content[i].start += src.length
+            found = true;
+            break;
         }
 
         // Triangle Shadow Offset
-        mesh.writeUInt32LE(shadowPtr, headerOfs)
-        headerOfs += 4;
+        model.writeUInt32LE(LIGHTING_OFFSET, ofs + 0x10)
 
         // Quad Shadow Offset
-        mesh.writeUInt32LE(shadowPtr, headerOfs)
-        headerOfs += 4;
+        model.writeUInt32LE(LIGHTING_OFFSET, ofs + 0x14)
+
+        ofs += 0x18;
+    }
+
+    bodyMesh.forEach((prim, index) => {
+        const { vertices, tri, quad } = prim;
+        writeSegment(vertices, tri, quad, BODY_START + (index * 0x18))
     })
 
-    console.log("End Offset: 0x%s", contentOfs.toString(16))
-    console.log("Length: 0x%s", BODY_LEN.toString(16))
+    headMesh.forEach((prim, index) => {
+        const { vertices, tri, quad } = prim;
+        writeSegment(vertices, tri, quad, HEAD_START + (index * 0x18))
+    })
 
-    return mesh;
-}
+    feetMesh.forEach((prim, index) => {
+        const { vertices, tri, quad } = prim;
+        writeSegment(vertices, tri, quad, FEET_START + (index * 0x18))
+    })
 
-const PL00P010 = (
-    body: [string, string, string, string, string, string]
-) => {
+    leftMesh.forEach((prim, index) => {
+        const { vertices, tri, quad } = prim;
+        writeSegment(vertices, tri, quad, LEFT_START + (index * 0x18))
+    })
 
-    // On the first pass, we want to read the MegaMan model
-    // and then comment out the arm to confirm the limbs
-    // and then we can update the pointers to see what room we can get
+    rightMesh.forEach((prim, index) => {
+        const { vertices, tri, quad } = prim;
+        writeSegment(vertices, tri, quad, RIGHT_START + (index * 0x18))
+    })
 
-    
+    // Remove ALL left arm buster data
+    model.fill(0, BUSTER_START, 0x2268)
+    model.fill(0x80, 0x2268, 0x26f0)
 
-    const a = encodeModelBody(body);
-
-    writePSXFile(a);
+    // Write the encoded mesh to the file
+    writePSXFile(model);
 }
 
 export default PL00P010;
