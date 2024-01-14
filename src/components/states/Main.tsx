@@ -241,6 +241,7 @@ const handleMessage = async (event: MessageEvent) => {
       setEntity(message.mem!, message.entity!);
       break;
     case "Player":
+      console.log("Setting player!!!")
       setPlayer();
       break;
     case "reset":
