@@ -75,6 +75,7 @@ class Player {
 
     parseMesh() {
         // Prepare Skeleton
+        console.log("read bones");
         this.readBones();
 
         // Prepare Textures
@@ -398,7 +399,6 @@ class Player {
 
         this.faces.forEach((face, index) => {
             const { x, y, z, u, v, boneIndex, materialIndex } = face;
-            console.log(materialIndex)
             pos.push(x, y, z);
             uvs.push(u, v);
             skinIndices.push(boneIndex, 0, 0, 0);
@@ -583,6 +583,26 @@ class Player {
             "parent": 13
         }
         ];
+
+        const BONE_OFS = 0;
+        this.reader.seek(BONE_OFS)
+
+        boneSrc.forEach( (bone, index) => {
+            const x = this.reader.readInt16();
+            const y = this.reader.readInt16();
+            const z = this.reader.readInt16();
+
+            const vec3 = new Vector3(x, y, z);
+            vec3.multiplyScalar(SCALE);
+            vec3.applyMatrix4(ROT);
+            console.log("------ %s ----", index);
+            console.log(vec3.x, vec3.y, vec3.z)
+            console.log(bone.pos.x, bone.pos.y, bone.pos.z)
+
+            bone.pos.x = vec3.x
+            bone.pos.y = vec3.y
+            bone.pos.z = vec3.z
+        })
 
         boneSrc.forEach(src => {
 
