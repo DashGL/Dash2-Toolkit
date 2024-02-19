@@ -1,0 +1,17 @@
+---
+import RailItem from "./RailItem.astro";
+const rail = [
+    {
+        text: "State",
+        url: "/state",
+    },
+    {
+        text: "Player",
+        url: "/player",
+    },
+];
+---
+
+<aside style="position: absolute; width: 4rem; height:100%; left: 0; top: 0;">
+    {rail.map((items) => <RailItem text={items.text} url={items.url} />)}
+</aside>

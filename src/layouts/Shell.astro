@@ -1,0 +1,31 @@
+---
+import Navbar from "@components/shell/Navbar.astro";
+import AppRail from "@components/shell/AppRail.astro";
+---
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="description" content="Astro description" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/svg+xml" href="/logo.png" />
+        <meta name="generator" content={Astro.generator} />
+        <title>Dash Toolkit</title>
+    </head>
+    <body class="antialiased bg-gray-50 dark:bg-gray-900">
+        <Navbar />
+        <main
+            class="w-full fixed left-0 z-10"
+            style="height: calc(100% - 4rem); top: 4rem"
+        >
+            <AppRail />
+
+            <section
+                style="position: absolute; width: calc(100% - 4rem); height: 100%; top: 0; left: 4rem;"
+            >
+                <slot />
+            </section>
+        </main>
+    </body>
+</html>
